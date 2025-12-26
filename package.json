@@ -1,0 +1,14 @@
+{
+    "name": "technexus-ai-arena",
+    "private": true,
+    "workspaces": [
+        "client",
+        "realtime-service",
+        "ai-service"
+    ],
+    "scripts": {
+        "build": "npm run build --workspace=client",
+        "install": "npm install --workspace=client",
+        "dev": "npm run dev --workspace=client"
+    }
+}
