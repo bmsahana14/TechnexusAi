@@ -1,33 +1,66 @@
-# Dependencies
-node_modules/
-.next/
-dist/
-build/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Environment variables
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
+!.env.example
 
-# Debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pip-log.txt
-*.log
+# vercel
+.vercel
 
-# Python
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
 venv/
-.venv/
+ENV/
+env/
 
-# Documentation - Hiding all .md files except README.md as requested
-*.md
-!README.md
+# uploads
+uploads/
+*.pdf
+*.pptx
 
-# OS files
-.DS_Store
-Thumbs.db
+# logs
+*.log
+ai_init_log.txt
