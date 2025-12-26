@@ -1,483 +1,166 @@
-# 🎯 TechNexus AI Quiz Arena
+# 🎮 TechNexus AI Quiz Platform
 
-> **Transform presentations into interactive quizzes instantly. Where AI meets real-time engagement.**
-
-A cutting-edge, AI-powered quiz platform that converts PDF/PPTX files into engaging, real-time multiplayer quiz experiences. Built with Next.js, FastAPI, and Socket.IO for seamless performance.
-
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![Next.js](https://img.shields.io/badge/Next.js-16.1-black)
-![Python](https://img.shields.io/badge/Python-3.9+-yellow)
-
----
+An interactive, real-time quiz platform powered by AI that generates questions from uploaded documents (PDF, PPTX). Built with Next.js, FastAPI, and Socket.io.
 
 ## ✨ Features
 
-### 🤖 **AI-Powered Quiz Generation**
-- Upload PDF or PPTX presentations
-- Google Gemini AI generates contextual questions
-- Automatic question generation in under 30 seconds
-- Smart content analysis for relevant questions
-
-### 🎮 **Real-Time Multiplayer**
-- Support for 1000+ concurrent players
-- WebSocket-based instant updates
-- Lag-free live quiz experience
-- Real-time answer tracking
-
-### 📊 **Live Leaderboards**
-- Dynamic scoring with time bonuses
-- Instant rank updates after each question
-- Top 10 player display with avatars
-- Color-coded rankings (Gold/Silver/Bronze)
-- Final leaderboard with profile pictures
-
-### 📱 **QR Code Integration**
-- Quick join via QR code scanning
-- Mobile-optimized scanner
-- Auto-fill PIN functionality
-- Camera-based or manual entry
-
-### 🎨 **Premium UI/UX**
-- Glassmorphism design
-- Smooth animations with Framer Motion
-- Fully responsive (mobile, tablet, desktop)
-- Dark mode optimized
-- Profile picture avatars for all participants
-
-### ⚙️ **Admin Dashboard**
-- Upload and manage presentations
-- Edit AI-generated questions
-- Add/delete questions manually
-- Customize question timers (5-300 seconds)
-- Export results as CSV
-- Re-host previous quizzes
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Node.js** 18+ and npm
-- **Python** 3.9+
-- **Google Gemini API Key** ([Get one here](https://makersuite.google.com/app/apikey))
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone <your-repo-url>
-cd quiz-app
-```
-
-2. **Set up AI Service**
-```bash
-cd ai-service
-pip install -r requirements.txt
-
-# Create .env file
-echo GEMINI_API_KEY=your_api_key_here > .env
-```
-
-3. **Set up Realtime Service**
-```bash
-cd ../realtime-service
-npm install
-```
-
-4. **Set up Frontend**
-```bash
-cd ../client
-npm install
-
-# Create .env.local file
-echo NEXT_PUBLIC_REALTIME_URL=http://localhost:4000 > .env.local
-echo NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8000 >> .env.local
-```
-
-### Running the Application
-
-Open **3 separate terminals**:
-
-**Terminal 1 - AI Service:**
-```bash
-cd ai-service
-python main.py
-# Runs on http://localhost:8000
-```
-
-**Terminal 2 - Realtime Service:**
-```bash
-cd realtime-service
-npm start
-# Runs on http://localhost:4000
-```
-
-**Terminal 3 - Frontend:**
-```bash
-cd client
-npm run dev
-# Runs on http://localhost:3000
-```
-
-### Access the Application
-
-- **Landing Page:** http://localhost:3000
-- **Admin Dashboard:** http://localhost:3000/admin
-- **Join Quiz:** http://localhost:3000/join
-
----
-
-## 📖 User Guide
-
-### For Admins/Hosts
-
-1. **Create a Quiz**
-   - Navigate to Admin Dashboard
-   - Upload a PDF or PPTX file
-   - Click "Generate Quiz"
-   - Wait ~30 seconds for AI processing
-
-2. **Review & Edit**
-   - Review AI-generated questions
-   - Edit questions and options
-   - Mark correct answers
-   - Set question timer (5-300 seconds)
-   - Add or delete questions as needed
-
-3. **Launch Quiz**
-   - Click "Launch Live Quiz"
-   - QR code appears in lobby
-   - Share quiz PIN or QR code
-   - Wait for participants to join
-
-4. **Host the Quiz**
-   - Click "Start Quiz" when ready
-   - Monitor participant answers in real-time
-   - Click "Reveal Results" after each question
-   - View live leaderboard after each question
-   - Click "Next Question" to continue
-   - Export final results as CSV
-
-### For Participants
-
-1. **Join a Quiz**
-   - **Option 1:** Scan QR code with phone camera
-   - **Option 2:** Visit join page and click camera icon
-   - **Option 3:** Manually enter 6-digit PIN
-   
-2. **Customize Avatar**
-   - Click shuffle button to change profile picture
-   - Enter your name/alias
-
-3. **Play the Quiz**
-   - Read each question carefully
-   - Select your answer before time runs out
-   - See if you were correct after reveal
-   - Check your position on the live leaderboard
-   - Compete for the top spot!
-
-4. **View Results**
-   - See your final rank and score
-   - Compare with other participants
-   - Return to home or join another quiz
-
----
+- 🤖 **AI-Powered Quiz Generation** - Upload PDFs/PPTX and get contextual questions using Google Gemini
+- ⚡ **Real-time Multiplayer** - Live quiz sessions with WebSocket support
+- 📊 **Dynamic Leaderboards** - Real-time score tracking and rankings
+- 🎨 **Modern UI** - Beautiful, responsive design with animations
+- 📱 **QR Code Join** - Easy participant joining via QR codes
+- 🎯 **Interactive Polls** - Live answer distribution visualization
+- 🏆 **Gamification** - Points, rankings, and engaging feedback
 
 ## 🏗️ Architecture
 
-### Tech Stack
+The platform consists of three microservices:
 
-**Frontend:**
-- Next.js 16.1 (React 19)
-- TypeScript
-- Tailwind CSS 4
-- Framer Motion (animations)
-- Socket.IO Client
-- QR Code libraries (react-qr-code, html5-qrcode)
+1. **Frontend (Next.js)** - Main web application
+2. **AI Service (Python/FastAPI)** - Quiz generation backend
+3. **Realtime Service (Node.js)** - WebSocket server for real-time features
 
-**Backend - Realtime Service:**
-- Node.js
-- Express
-- Socket.IO
-- In-memory state management
+## 🚀 Quick Start
 
-**Backend - AI Service:**
-- Python 3.9+
-- FastAPI
-- Google Gemini AI
-- PDF/PPTX processing libraries
+### Local Development
 
-**Database:**
-- Supabase (PostgreSQL)
-- Real-time subscriptions
-- Authentication
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd quiz-app
+   ```
 
-### Project Structure
+2. **Set up environment variables**
+   - Copy `.env.local.example` to `.env.local`
+   - Copy `ai-service/.env.example` to `ai-service/.env`
+   - Copy `realtime-service/.env.example` to `realtime-service/.env`
+   - Fill in your API keys (Supabase, Gemini)
 
-```
-quiz-app/
-├── client/                 # Next.js frontend
-│   ├── src/
-│   │   ├── app/           # App router pages
-│   │   │   ├── page.tsx           # Landing page
-│   │   │   ├── join/              # Join page with QR scanner
-│   │   │   ├── admin/             # Admin dashboard
-│   │   │   ├── login/             # Login page
-│   │   │   └── game/[id]/         # Game views
-│   │   │       ├── page.tsx       # Participant view
-│   │   │       └── host/page.tsx  # Host/Admin view
-│   │   ├── components/    # Reusable components
-│   │   │   └── QRScanner.tsx      # QR code scanner
-│   │   └── lib/           # Utilities
-│   │       ├── socket.ts          # Socket.IO client
-│   │       └── supabase.ts        # Supabase client
-│   └── package.json
-│
-├── realtime-service/      # Socket.IO server
-│   ├── server.js          # Main server file
-│   └── package.json
-│
-├── ai-service/            # AI quiz generation
-│   ├── main.py            # FastAPI server
-│   ├── requirements.txt
-│   └── .env               # API keys
-│
-└── README.md
-```
+3. **Start all services**
+   ```bash
+   # Option 1: Use the workflow
+   # See .agent/workflows/start-services.md
 
----
+   # Option 2: Manual start
+   # Terminal 1 - AI Service
+   cd ai-service
+   pip install -r requirements.txt
+   python main.py
 
-## 🎨 Features in Detail
+   # Terminal 2 - Realtime Service
+   cd realtime-service
+   npm install
+   npm start
 
-### Live Leaderboards
+   # Terminal 3 - Frontend
+   npm install
+   npm run dev
+   ```
 
-**After Each Question:**
-- Participants see top 10 players with avatars
-- Current player highlighted
-- Real-time score updates
-- Smooth animations
+4. **Open the app**
+   - Frontend: http://localhost:3000
+   - AI Service: http://localhost:8000
+   - Realtime Service: http://localhost:4000
 
-**Admin View:**
-- 2-column responsive grid
-- Top 10 players displayed
-- Rank badges (Gold/Silver/Bronze)
-- Current scores and avatars
+### 🌐 Deploy to Production
 
-**Final Leaderboard:**
-- Complete rankings
-- Profile pictures for all participants
-- Export to CSV functionality
-- Champion highlighting
+**Fastest way to deploy to Render (5 minutes):**
 
-### QR Code System
+See **[DEPLOY_TO_RENDER.md](./DEPLOY_TO_RENDER.md)** for the quickest deployment guide.
 
-**Host Display:**
-- Automatic QR code generation in lobby
-- Contains full join URL with PIN
-- 180x180px optimized size
-- High error correction level
+**Detailed deployment guides:**
+- [Render Deployment Guide](./RENDER_DEPLOYMENT.md) - Comprehensive step-by-step
+- [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) - Pre/post-deployment tasks
 
-**Participant Scanner:**
-- Camera button on join page
-- Live camera preview
-- Auto-fill PIN on successful scan
-- Error handling for permissions
-- Fallback to manual entry
+**Quick deploy:**
+1. Push code to GitHub
+2. Go to [Render Dashboard](https://dashboard.render.com/)
+3. Click "New +" → "Blueprint"
+4. Select your repository (render.yaml will be auto-detected)
+5. Configure environment variables
+6. Deploy!
 
-### Scoring System
+## 📋 Requirements
 
-```
-Base Points: 100 per correct answer
-Time Bonus: timeRemaining × 10
-Total Score = Base + Time Bonus
-
-Example:
-- Answer correctly with 15s remaining
-- Score = 100 + (15 × 10) = 250 points
-```
-
-### Question Timer
-
-- Configurable per quiz (5-300 seconds)
-- Visual countdown for participants
-- Progress bar indicator
-- Auto-submit when time expires
-- Color changes when time is low (<5s)
-
----
+- **Node.js** 18+ (for Frontend and Realtime Service)
+- **Python** 3.11+ (for AI Service)
+- **Supabase Account** (for database and auth)
+- **Google Gemini API Key** (for AI quiz generation)
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-**AI Service (.env):**
+#### Frontend (.env.local)
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-**Frontend (.env.local):**
-```env
-NEXT_PUBLIC_REALTIME_URL=http://localhost:4000
-NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8000
 ```
 
-**Realtime Service (.env):**
+#### AI Service (ai-service/.env)
+```env
+GEMINI_API_KEY=your_gemini_api_key
+PORT=8000
+```
+
+#### Realtime Service (realtime-service/.env)
 ```env
 PORT=4000
 ```
 
----
+## 📚 Documentation
 
-## 🎯 API Endpoints
+- [Quick Start Guide](./QUICK_START.md) - Get started quickly
+- [Supabase Setup](./SUPABASE_SETUP.md) - Database configuration
+- [Gemini Setup](./SETUP_GEMINI.md) - AI service configuration
+- [Troubleshooting](./TROUBLESHOOTING_PDF_QUIZ.md) - Common issues
 
-### AI Service (Port 8000)
+## 🛠️ Tech Stack
 
-**POST /generate-quiz**
-- Upload PDF/PPTX file
-- Returns AI-generated questions
-```json
-{
-  "quiz_data": [
-    {
-      "q": "Question text",
-      "options": ["A", "B", "C", "D"],
-      "correct": 0
-    }
-  ]
-}
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion
+- **Backend**: FastAPI (Python), Express.js (Node.js)
+- **Real-time**: Socket.io
+- **AI**: Google Gemini API
+- **Database**: Supabase (PostgreSQL)
+- **Deployment**: Render
+
+## 📦 Project Structure
+
 ```
-
-### Realtime Service (Port 4000)
-
-**Socket.IO Events:**
-
-*Client → Server:*
-- `create-room` - Create new quiz room
-- `join-quiz` - Join as participant
-- `start-quiz` - Begin the quiz
-- `submit-answer` - Submit answer
-- `reveal-results` - Show question results
-- `next-question` - Move to next question
-
-*Server → Client:*
-- `room-created` - Room creation confirmed
-- `player-joined` - New player joined
-- `quiz-started` - Quiz has begun
-- `new-question` - New question data
-- `participant-answered` - Answer submitted
-- `question-results` - Results with leaderboard
-- `quiz-ended` - Final leaderboard
-
----
-
-## 🚀 Deployment
-
-### Frontend (Vercel)
-
-```bash
-cd client
-npm run build
-vercel deploy
+quiz-app/
+├── src/                    # Frontend source code
+├── ai-service/            # Python AI service
+├── realtime-service/      # Node.js WebSocket service
+├── public/                # Static assets
+├── .agent/workflows/      # Development workflows
+└── render.yaml           # Render deployment config
 ```
-
-### AI Service (Railway/Render)
-
-```bash
-cd ai-service
-# Add Procfile: web: uvicorn main:app --host 0.0.0.0 --port $PORT
-railway up
-```
-
-### Realtime Service (Railway/Render)
-
-```bash
-cd realtime-service
-railway up
-```
-
-**Update environment variables** in production to use deployed URLs.
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**1. AI Service not generating questions**
-- Check Gemini API key is valid
-- Verify PDF/PPTX file is not corrupted
-- Check console logs for errors
-
-**2. Participants can't join**
-- Ensure realtime service is running
-- Check Socket.IO connection in browser console
-- Verify quiz PIN is correct
-
-**3. QR Scanner not working**
-- Grant camera permissions
-- Use HTTPS in production
-- Check browser compatibility
-
-**4. Leaderboard not updating**
-- Verify Socket.IO connection
-- Check server logs for errors
-- Ensure participants are submitting answers
-
----
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License.
 
----
+## 🆘 Support
 
-## 🙏 Acknowledgments
+- Check [TROUBLESHOOTING_PDF_QUIZ.md](./TROUBLESHOOTING_PDF_QUIZ.md) for common issues
+- Review [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for deployment help
+- See conversation history for development context
 
-- **Google Gemini AI** - For powerful quiz generation
-- **Next.js Team** - For the amazing framework
-- **Socket.IO** - For real-time capabilities
-- **Framer Motion** - For smooth animations
-- **Dicebear** - For avatar generation
+## 🎯 What's Next?
 
----
-
-## 📧 Support
-
-For issues, questions, or suggestions:
-- Open an issue on GitHub
-- Contact: your-email@example.com
+- [ ] Deploy to Render
+- [ ] Add custom domain
+- [ ] Enable auto-deploy from GitHub
+- [ ] Add more AI models support
+- [ ] Implement quiz templates
+- [ ] Add analytics dashboard
 
 ---
 
-## 🎊 Recent Updates
-
-### Latest Features (December 2025)
-
-✅ **Enhanced Landing Page** - New engaging tagline  
-✅ **Live Leaderboards** - After each question for both admin and participants  
-✅ **QR Code System** - Easy joining via QR scanning  
-✅ **Profile Pictures** - Avatars throughout the experience  
-✅ **Admin Controls** - Customizable question timers  
-✅ **Clean UI** - Removed redundant text, improved aesthetics  
-
----
-
-**Built with ❤️ for the next generation of tech events**
-
-🚀 **Start creating engaging quizzes today!**
+Built with ❤️ using Next.js, FastAPI, and Google Gemini

@@ -40,14 +40,20 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
     healthCheckPath: /
     envVars:
       - key: NODE_OPTIONS
-        value: "--max-old-space-size=2048"
+        value: "--max-old-space-size=1024"
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
+      - key: NEXT_DISABLE_SOURCEMAPS
+        value: "1"
+      - key: KNODE_COMPILE_CACHE
+        value: "0"
+      - key: DISABLE_ESLINT_PLUGIN
+        value: "true"
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
