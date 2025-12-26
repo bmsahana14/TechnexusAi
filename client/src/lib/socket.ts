@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 // In development, Next.js can hot reload and cause multiple connections
 // We want to avoid that if possible, but for a global object usually this works.
 
-const URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+const URL = process.env.NEXT_PUBLIC_REALTIME_URL || "http://localhost:4000";
 
 export const socket = io(URL, {
     autoConnect: false, // We will connect explicitly when needed (or inside a Provider)
