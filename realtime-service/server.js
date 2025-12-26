@@ -7,16 +7,24 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 
+// In-memory store for active quizzes (Replace with Redis for scaling)
+const activeQuizzes = new Map();
+
+// Health check endpoint for Render
+app.get('/', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'TechNexus Realtime Service is running'
+    });
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Configure this properly in production
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });
-
-// In-memory store for active quizzes (Replace with Redis for scaling)
-const activeQuizzes = new Map();
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);

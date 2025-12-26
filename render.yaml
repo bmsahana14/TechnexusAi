@@ -44,6 +44,10 @@ services:
     startCommand: npm start
     healthCheckPath: /
     envVars:
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=2048"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
