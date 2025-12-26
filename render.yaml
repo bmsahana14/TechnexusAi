@@ -59,8 +59,14 @@ services:
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
       - key: NEXT_PUBLIC_SOCKET_URL
-        sync: false
+        fromService:
+          type: web
+          name: technexus-realtime-service
+          property: host
       - key: NEXT_PUBLIC_AI_SERVICE_URL
-        sync: false
+        fromService:
+          type: web
+          name: technexus-ai-service
+          property: host
       - key: NODE_VERSION
         value: 20.x

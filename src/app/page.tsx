@@ -86,19 +86,19 @@ export default function Home() {
             AI-Powered Quiz Platform
           </motion.div>
 
-          <h1 className="text-6xl sm:text-7xl md:text-9xl font-black tracking-tighter font-heading text-gradient leading-tight md:leading-none">
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter font-heading text-gradient leading-[1.1] md:leading-none">
             TechNexus AI
           </h1>
 
           <motion.p
-            className="text-xl sm:text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed px-4"
+            className="text-lg sm:text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
             Transform presentations into <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive quizzes</span> instantly.
             <br />
-            <span className="text-base sm:text-lg text-slate-400 mt-4 block">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
+            <span className="text-sm sm:text-lg text-slate-400 mt-4 block max-w-2xl mx-auto">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
           </motion.p>
         </motion.div>
 
@@ -111,21 +111,21 @@ export default function Home() {
         >
           <Link
             href="/join"
-            className="group relative px-12 py-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl font-bold text-xl transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)] hover:shadow-[0_0_60px_rgba(99,102,241,0.5)] hover:scale-105 active:scale-95 overflow-hidden"
+            className="w-full sm:w-auto group relative px-8 sm:px-12 py-5 sm:py-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl font-bold text-lg sm:text-xl transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)] hover:shadow-[0_0_60px_rgba(99,102,241,0.5)] hover:scale-105 active:scale-95 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            <span className="relative flex items-center gap-3">
-              <Zap size={24} fill="currentColor" />
+            <span className="relative flex items-center justify-center gap-3">
+              <Zap size={20} className="sm:size-6" fill="currentColor" />
               Join a Quiz
-              <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={20} className="sm:size-6 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
 
           <Link
             href="/login"
-            className="group px-12 py-6 glass text-white rounded-2xl font-bold text-xl hover:bg-white/10 transition-all border border-white/10 hover:border-indigo-400/50 hover:scale-105 active:scale-95 flex items-center gap-3"
+            className="w-full sm:w-auto group px-8 sm:px-12 py-5 sm:py-6 glass text-white rounded-2xl font-bold text-lg sm:text-xl hover:bg-white/10 transition-all border border-white/10 hover:border-indigo-400/50 hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
           >
-            <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
+            <Sparkles size={20} className="sm:size-6 group-hover:rotate-12 transition-transform" />
             Create with AI
           </Link>
         </motion.div>
@@ -190,7 +190,7 @@ export default function Home() {
 
         {/* Stats Section */}
         <motion.div
-          className="grid grid-cols-3 gap-8 pt-12"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 pt-8 sm:pt-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
@@ -200,11 +200,11 @@ export default function Home() {
             { value: "1000+", label: "Concurrent Users" },
             { value: "99.9%", label: "Uptime" }
           ].map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-4xl md:text-5xl font-black text-gradient mb-2">
+            <div key={index} className="text-center p-4 bg-white/5 rounded-2xl border border-white/5">
+              <div className="text-3xl sm:text-4xl md:text-5xl font-black text-gradient mb-1 sm:mb-2">
                 {stat.value}
               </div>
-              <div className="text-sm text-slate-500 uppercase tracking-widest font-bold">{stat.label}</div>
+              <div className="text-[10px] sm:text-sm text-slate-500 uppercase tracking-widest font-bold">{stat.label}</div>
             </div>
           ))}
         </motion.div>

@@ -57,7 +57,64 @@ export default function JoinQuiz() {
 
     const handleJoin = (e: React.FormEvent) => {
         e.preventDefault();
+        const cleanPin = pin.trim().replace(/\s+/g, "");
+        const cleanName = name.trim();
+
+        if (!cleanPin || !cleanName) {
+            alert("Please enter both a PIN and your alias.");
+            return;
+        }
+
         setLoading(true);
+
+        // Define handlers first so we can use them in listeners
+        const handleJoined = (data: any) => {
+            console.log("Player joined event received:", data);
+            // On mobile, socket.id might be tricky, so we check if the ID matches 
+            // OR if the name matches and we are the one who just joined (loading state)
+            if (data.id === socket.id || (data.name === cleanName && loading)) {
+                console.log("Successfully joined!");
+                localStorage.setItem(`quiz_name_${cleanPin}`, cleanName);
+                localStorage.setItem(`quiz_avatar_${cleanPin}`, avatarUrl);
+                cleanup();
+                setLoading(false);
+                router.push(`/game/${cleanPin}`);
+            }
+        };
+
+        const handleRoomState = (data: any) => {
+            console.log("Room state received, assuming join successful:", data);
+            localStorage.setItem(`quiz_name_${cleanPin}`, cleanName);
+            localStorage.setItem(`quiz_avatar_${cleanPin}`, avatarUrl);
+            cleanup();
+            setLoading(false);
+            router.push(`/game/${cleanPin}`);
+        };
+
+        const handleError = (data: any) => {
+            alert(data.message);
+            setLoading(false);
+            cleanup();
+        };
+
+        const cleanup = () => {
+            socket.off('player-joined', handleJoined);
+            socket.off('room-state', handleRoomState);
+            socket.off('error', handleError);
+            if (joinTimeout) clearTimeout(joinTimeout);
+        };
+
+        // Increased timeout for mobile connections
+        const joinTimeout = setTimeout(() => {
+            setLoading(false);
+            cleanup();
+            alert("Connection Timeout: Is the arena server online? Check your internet connection.");
+        }, 15000);
+
+        // Set up listeners BEFORE emitting
+        socket.on('player-joined', handleJoined);
+        socket.on('room-state', handleRoomState);
+        socket.on('error', handleError);
 
         if (!socket.connected) {
             socket.connect();
@@ -65,40 +122,10 @@ export default function JoinQuiz() {
 
         // Emit join event with avatar
         socket.emit('join-quiz', {
-            quizId: pin,
-            playerName: name,
+            quizId: cleanPin,
+            playerName: cleanName,
             avatar: avatarUrl
         });
-
-        const handleJoined = (data: any) => {
-            if (data.id === socket.id) {
-                console.log("Successfully joined!");
-                localStorage.setItem(`quiz_name_${pin}`, name);
-                localStorage.setItem(`quiz_avatar_${pin}`, avatarUrl);
-                socket.off('player-joined', handleJoined);
-                socket.off('error', handleError);
-                setLoading(false);
-                router.push(`/game/${pin}`);
-            }
-        };
-
-        const handleError = (data: any) => {
-            alert(data.message);
-            setLoading(false);
-            socket.off('player-joined', handleJoined);
-            socket.off('error', handleError);
-        };
-
-        socket.on('player-joined', handleJoined);
-        socket.on('error', handleError);
-
-        setTimeout(() => {
-            if (loading) {
-                setLoading(false);
-                socket.off('player-joined', handleJoined);
-                socket.off('error', handleError);
-            }
-        }, 5000);
     };
 
     const handleScan = (decodedText: string) => {
@@ -118,27 +145,22 @@ export default function JoinQuiz() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col justify-center items-center p-4 relative overflow-hidden bg-[#0f172a]">
+        <div className="min-h-screen flex flex-col justify-start sm:justify-center items-center p-4 relative overflow-y-auto bg-[#0f172a]">
             {/* Background Effects */}
             <motion.div
-                className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px]"
+                className="absolute top-[-20%] left-[-10%] w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-indigo-600/10 rounded-full blur-[80px] sm:blur-[120px]"
                 animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-                className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-pink-600/10 rounded-full blur-[120px]"
-                animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.12, 0.1] }}
-                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
             />
 
             <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="absolute top-8 left-8 z-20"
+                className="w-full max-w-md py-4 sm:absolute sm:top-8 sm:left-8 z-20"
             >
                 <Link href="/" className="group inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/10 hover:border-indigo-400/50 rounded-xl transition-all text-slate-400 hover:text-white">
                     <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-sm font-medium">Back to Home</span>
+                    <span className="text-sm font-medium">Home</span>
                 </Link>
             </motion.div>
 
@@ -146,14 +168,14 @@ export default function JoinQuiz() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="w-full max-w-md relative z-10"
+                className="w-full max-w-md relative z-10 mb-8 sm:mb-0"
             >
-                <div className="glass-card p-10 md:p-12 border-indigo-500/10">
-                    <div className="text-center mb-10">
+                <div className="glass-card p-6 sm:p-10 md:p-12 border-indigo-500/10 shadow-2xl shadow-indigo-500/10">
+                    <div className="text-center mb-6 sm:mb-8">
                         {/* Avatar Selector */}
-                        <div className="relative inline-block mb-6 group">
+                        <div className="relative inline-block mb-4 sm:mb-6 group">
                             <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full" />
-                            <div className="relative h-28 w-28 bg-slate-800 rounded-3xl flex items-center justify-center overflow-hidden border-2 border-indigo-500/30 shadow-2xl shadow-indigo-500/20">
+                            <div className="relative h-20 w-20 sm:h-28 sm:w-28 bg-slate-800 rounded-3xl flex items-center justify-center overflow-hidden border-2 border-indigo-500/30 shadow-2xl shadow-indigo-500/20">
                                 <AnimatePresence mode="wait">
                                     <motion.img
                                         key={avatarSeed}
@@ -169,56 +191,53 @@ export default function JoinQuiz() {
                                 <button
                                     onClick={handleShuffleAvatar}
                                     type="button"
-                                    className="absolute bottom-1 right-1 h-8 w-8 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:rotate-180"
+                                    className="absolute bottom-1 right-1 h-7 w-7 sm:h-8 sm:w-8 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg transition-all hover:scale-110 active:rotate-180"
                                     title="Change Profile Picture"
                                 >
-                                    <RefreshCw size={14} />
+                                    <RefreshCw size={12} />
                                 </button>
                             </div>
-                            <div className="mt-3">
-                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">Pick your character</span>
-                            </div>
                         </div>
-                        <h1 className="text-4xl font-black text-gradient font-heading tracking-tight mb-2">Join Arena</h1>
-                        <p className="text-slate-500 text-sm">Every player needs a unique look.</p>
+                        <h1 className="text-2xl sm:text-4xl font-black text-gradient font-heading tracking-tight mb-1">Join Arena</h1>
+                        <p className="text-slate-500 text-[10px] sm:text-sm">Enter your details to enter the field.</p>
                     </div>
 
-                    <form onSubmit={handleJoin} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Game PIN</label>
+                    <form onSubmit={handleJoin} className="space-y-4 sm:space-y-6">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Game PIN</label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
-                                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                                     <input
                                         type="text"
                                         value={pin}
                                         onChange={(e) => setPin(e.target.value)}
-                                        placeholder="000 000"
-                                        className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-mono text-xl tracking-[0.3em]"
+                                        placeholder="000000"
+                                        className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-mono text-base sm:text-xl tracking-[0.4em] sm:tracking-[0.3em]"
                                         required
                                     />
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => setShowScanner(true)}
-                                    className="group px-5 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 hover:border-indigo-500/50 rounded-xl transition-all flex items-center justify-center"
+                                    className="group px-4 sm:px-5 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 hover:border-indigo-500/50 rounded-xl transition-all flex items-center justify-center"
                                     title="Scan QR Code"
                                 >
-                                    <Camera size={24} className="text-indigo-400 group-hover:text-indigo-300 transition-colors" />
+                                    <Camera size={20} className="text-indigo-400 group-hover:text-indigo-300 transition-colors" />
                                 </button>
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Your Alias</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Your Alias</label>
                             <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="Player One"
-                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-lg font-bold"
+                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all text-base sm:text-lg font-bold"
                                     required
                                 />
                             </div>
@@ -227,17 +246,17 @@ export default function JoinQuiz() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full btn-primary py-5 mt-4 text-lg group ${loading ? 'opacity-70 pointer-events-none' : ''}`}
+                            className={`w-full btn-primary py-4 sm:py-5 mt-2 text-base sm:text-lg group ${loading ? 'opacity-70 pointer-events-none' : ''}`}
                         >
                             {loading ? (
                                 <div className="flex items-center gap-3">
-                                    <Loader2 className="animate-spin" size={24} />
+                                    <Loader2 className="animate-spin" size={20} />
                                     <span>Entering Arena...</span>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3">
                                     <span>Enter Game</span>
-                                    <Play size={20} className="group-hover:translate-x-1 transition-transform" />
+                                    <Play size={18} className="group-hover:translate-x-1 transition-transform" />
                                 </div>
                             )}
                         </button>

@@ -12,12 +12,17 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "TechNexus AI | The Ultimate Real-Time Quiz Arena",
   description: "Transform your tech presentations into interactive, high-stakes quizzes instantly using GPT-4o powered AI. Designed for 1000+ concurrent players.",
   keywords: ["AI Quiz", "TechNexus", "Real-time Quiz", "Educational AI", "Interactive Presentation", "Socket.IO Quiz", "Next.js Arena"],
   authors: [{ name: "TechNexus Team" }],
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({

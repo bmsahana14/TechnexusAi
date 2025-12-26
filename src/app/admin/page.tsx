@@ -61,11 +61,11 @@ export default function AdminDashboard() {
         checkAuth();
 
 
-        if (!socket.connected) socket.connect();
-
         const onRoomCreated = (data: any) => {
             console.log("Room created:", data);
             setActiveQuizId(data.quizId);
+            // AUTO REDIRECT TO HOST VIEW
+            router.push(`/game/${data.quizId}/host`);
         };
 
         socket.on('room-created', onRoomCreated);
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
         return () => {
             socket.off('room-created', onRoomCreated);
         };
-    }, []);
+    }, [router]);
 
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -111,24 +111,44 @@ export default function AdminDashboard() {
             formData.append('num_questions', '5');
             formData.append('difficulty', 'Medium');
 
-            const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000';
+            let aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL || 'http://localhost:8000';
+            if (aiServiceUrl && !aiServiceUrl.startsWith('http')) {
+                aiServiceUrl = `https://${aiServiceUrl}`;
+            }
             const res = await fetch(`${aiServiceUrl}/generate-quiz`, {
                 method: 'POST',
                 body: formData
             });
 
 
-            if (!res.ok) throw new Error("AI Generation Failed");
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.detail || "AI Generation Failed");
+            }
 
             const data = await res.json();
             console.log("AI Response:", data);
 
-            setGeneratedQuestions(data.quiz_data || []);
-            setView('REVIEW');
+            if (data.quiz_data && data.quiz_data.length > 0) {
+                setGeneratedQuestions(data.quiz_data);
+                setView('REVIEW');
+            } else {
+                throw new Error("AI returned no questions. Please try another file.");
+            }
 
-        } catch (err) {
-            console.error(err);
-            alert("Failed to generate quiz. Check console.");
+        } catch (err: any) {
+            console.error("Quiz Generation Error:", err);
+            alert(`Oops! ${err.message || "Failed to generate quiz."}`);
+
+            // FALLBACK: Allow manual entry if AI fails
+            if (confirm("Would you like to create questions manually instead?")) {
+                setGeneratedQuestions([{
+                    q: "Click to edit this question",
+                    options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+                    correct: 0
+                }]);
+                setView('REVIEW');
+            }
         } finally {
             setProcessing(false);
         }
@@ -162,12 +182,17 @@ export default function AdminDashboard() {
         const quizPayload = {
             quizId: newQuizId,
             questions: generatedQuestions,
-            title: file ? file.name : "Generated Quiz",
+            title: file ? file.name : "Manual Quiz",
             timePerQuestion: questionTimer
         };
 
 
         socket.emit('create-room', quizPayload);
+
+        // Safety redirect if socket listener fails
+        setTimeout(() => {
+            router.push(`/game/${newQuizId}/host`);
+        }, 1000);
     };
 
     const handleLogout = async () => {
@@ -206,29 +231,29 @@ export default function AdminDashboard() {
         <div className="min-h-screen p-8 bg-[#0f172a] text-slate-100">
 
             {/* Header */}
-            <header className="flex justify-between items-center mb-12 max-w-6xl mx-auto">
-                <div className="flex items-center gap-6">
-                    <Link href="/" className="group p-3 bg-slate-800/50 hover:bg-slate-700/50 rounded-xl transition-all border border-slate-700/50 hover:border-indigo-500/50">
+            <header className="flex flex-col sm:flex-row justify-between items-center mb-10 max-w-6xl mx-auto gap-6 sm:gap-0">
+                <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                    <Link href="/" className="group p-2.5 sm:p-3 bg-slate-800/50 hover:bg-slate-700/50 rounded-xl transition-all border border-slate-700/50 hover:border-indigo-500/50 shrink-0">
                         <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform text-slate-400 group-hover:text-indigo-400" />
                     </Link>
-                    <div>
-                        <h1 className="text-4xl font-black font-heading text-gradient">
-                            Admin Dashboard
+                    <div className="min-w-0">
+                        <h1 className="text-2xl sm:text-4xl font-black font-heading text-gradient truncate">
+                            Dashboard
                         </h1>
-                        <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">AI-Powered Quiz Management System</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1 truncate">AI Quiz Management</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3 px-5 py-3 bg-slate-800/40 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/20">
+                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+                    <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-3 bg-slate-800/40 rounded-xl border border-slate-700/50 backdrop-blur-sm flex-1 sm:flex-none justify-center">
+                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-xs sm:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0">
                             {user?.email?.substring(0, 2).toUpperCase() || 'AD'}
                         </div>
-                        <span className="text-sm font-medium text-slate-300 hidden md:block">{user?.email}</span>
+                        <span className="text-xs sm:text-sm font-medium text-slate-300 truncate max-w-[150px] sm:max-w-none">{user?.email}</span>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="group p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 hover:border-red-500/40 transition-all active:scale-95"
+                        className="group p-2.5 sm:p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/20 hover:border-red-500/40 transition-all active:scale-95 shrink-0"
                         title="Logout"
                     >
                         <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
@@ -241,20 +266,20 @@ export default function AdminDashboard() {
                 {/* Left Col: Generator */}
                 <section className="lg:col-span-2 space-y-8">
                     <div className="glass-card">
-                        <header className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold font-heading flex items-center gap-3">
-                                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                        <header className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                            <h2 className="text-lg sm:text-xl font-bold font-heading flex items-center gap-3">
+                                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 invisible sm:visible absolute sm:static">
                                     <Zap size={20} fill="currentColor" />
                                 </div>
                                 AI Quiz Generator
                             </h2>
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto">
                                 <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 rounded-full border border-green-500/20">
                                     <div className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse" />
-                                    <span className="text-[10px] font-bold text-green-400 uppercase tracking-widest">AI Service: Gemini (Active)</span>
+                                    <span className="text-[9px] sm:text-[10px] font-bold text-green-400 uppercase tracking-widest">Active</span>
                                 </div>
                                 {file && view === 'UPLOAD' && (
-                                    <button onClick={() => setFile(null)} className="text-xs font-bold text-red-400 hover:text-red-300 uppercase tracking-wider">
+                                    <button onClick={() => setFile(null)} className="text-[10px] font-bold text-red-400 hover:text-red-300 uppercase tracking-wider">
                                         Clear File
                                     </button>
                                 )}
@@ -263,7 +288,7 @@ export default function AdminDashboard() {
 
 
                         <div
-                            className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${dragActive
+                            className={`border-2 border-dashed rounded-xl p-6 sm:p-12 text-center transition-all ${dragActive
                                 ? "border-indigo-500 bg-indigo-500/10"
                                 : "border-slate-700 hover:border-slate-500 hover:bg-white/5"
                                 }`}
@@ -281,37 +306,37 @@ export default function AdminDashboard() {
                             />
 
                             {!file ? (
-                                <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-6 group">
-                                    <div className="h-20 w-20 bg-slate-800/50 rounded-2xl flex items-center justify-center text-slate-500 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-all duration-500 border border-slate-700/50 group-hover:border-indigo-500/50 group-hover:scale-110">
-                                        <Upload size={32} />
+                                <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-4 sm:gap-6 group">
+                                    <div className="h-16 w-16 sm:h-20 sm:w-20 bg-slate-800/50 rounded-2xl flex items-center justify-center text-slate-500 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-all duration-500 border border-slate-700/50 group-hover:border-indigo-500/50 group-hover:scale-110">
+                                        <Upload size={24} className="sm:size-[32px]" />
                                     </div>
-                                    <div>
-                                        <p className="text-xl font-bold text-slate-200">Upload Presentation</p>
-                                        <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto">Supported formats: <span className="text-slate-300 font-mono">.PDF</span>, <span className="text-slate-300 font-mono">.PPTX</span></p>
+                                    <div className="px-4">
+                                        <p className="text-lg sm:text-xl font-bold text-slate-200">Upload Presentation</p>
+                                        <p className="text-[10px] sm:text-sm text-slate-500 mt-1 sm:mt-2 max-w-xs mx-auto">Supported formats: <span className="text-slate-300 font-mono">.PDF</span>, <span className="text-slate-300 font-mono">.PPTX</span></p>
                                     </div>
                                 </label>
                             ) : (
-                                <div className="flex flex-col items-center gap-6 py-4">
-                                    <div className="h-24 w-24 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center border border-indigo-500/30 relative">
-                                        <FileText size={40} />
-                                        <div className="absolute -top-2 -right-2 bg-green-500 p-1.5 rounded-full text-white shadow-lg border-2 border-[#0f172a]">
-                                            <CheckCircle2 size={16} />
+                                <div className="flex flex-col items-center gap-4 sm:gap-6 py-2 sm:py-4">
+                                    <div className="h-20 w-20 sm:h-24 sm:w-24 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center border border-indigo-500/30 relative">
+                                        <FileText size={32} className="sm:size-[40px]" />
+                                        <div className="absolute -top-1.5 -right-1.5 bg-green-500 p-1 rounded-full text-white shadow-lg border-2 border-[#0f172a]">
+                                            <CheckCircle2 size={12} className="sm:size-[16px]" />
                                         </div>
                                     </div>
-                                    <div className="text-center">
-                                        <p className="text-xl font-bold text-white mb-1">{file.name}</p>
-                                        <p className="text-sm text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB • Ready to Generate</p>
+                                    <div className="text-center px-4">
+                                        <p className="text-lg sm:text-xl font-bold text-white mb-1 truncate max-w-xs">{file.name}</p>
+                                        <p className="text-xs sm:text-sm text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB • Ready</p>
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {view === 'UPLOAD' && file && (
-                            <div className="mt-6 flex justify-end">
+                            <div className="mt-6 flex justify-center sm:justify-end">
                                 <button
                                     onClick={handleGenerate}
                                     disabled={processing}
-                                    className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 ${processing
+                                    className={`w-full sm:w-auto px-6 py-4 sm:py-3 rounded-xl sm:rounded-lg font-semibold flex items-center justify-center gap-2 ${processing
                                         ? "bg-slate-700 text-slate-400"
                                         : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
                                         }`}
@@ -319,7 +344,7 @@ export default function AdminDashboard() {
                                     {processing ? (
                                         <>
                                             <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
-                                            Generating Questions...
+                                            Generating...
                                         </>
                                     ) : (
                                         <>
@@ -410,15 +435,15 @@ export default function AdminDashboard() {
                                     ))}
                                 </div>
 
-                                <div className="flex justify-between items-center pt-6 border-t border-slate-700/50">
+                                <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-slate-700/50 gap-6">
                                     <button
                                         onClick={() => setView('UPLOAD')}
-                                        className="text-slate-400 hover:text-white flex items-center gap-2 font-medium transition-colors"
+                                        className="text-slate-400 hover:text-white flex items-center gap-2 font-medium transition-colors w-full sm:w-auto justify-center"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                         Back to Upload
                                     </button>
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                                         <button
                                             onClick={() => {
                                                 const csv = [
@@ -435,15 +460,15 @@ export default function AdminDashboard() {
                                                 a.click();
                                                 document.body.removeChild(a);
                                             }}
-                                            className="px-6 py-3 border border-slate-700 rounded-lg font-bold text-slate-300 hover:bg-white/5 transition-all"
+                                            className="px-6 py-3 border border-slate-700 rounded-xl sm:rounded-lg font-bold text-slate-300 hover:bg-white/5 transition-all text-sm sm:text-base order-2 sm:order-1"
                                         >
                                             Export CSV
                                         </button>
                                         <button
                                             onClick={handleHostRoom}
-                                            className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-bold hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2"
+                                            className="px-8 py-4 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl sm:rounded-lg font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-3 sm:gap-2 order-1 sm:order-2"
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l14 9-14 9V3z" /></svg>
+                                            <Play size={18} fill="currentColor" />
                                             Launch Live Quiz
                                         </button>
                                     </div>

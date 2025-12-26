@@ -138,6 +138,27 @@ Click **"Create Web Service"** and wait for deployment.
 
 Your app will be live at: `https://technexus-quiz-platform.onrender.com`
 
+---
+
+## ⚡ How to Update Your Application
+
+When you make changes to the code (like the mobile UI updates we just implemented), you need to get them live on Render:
+
+### 1. Push to GitHub (Recommended)
+If you connected your GitHub repository and enabled **Auto-Deploy** (default):
+1. Commit your changes: `git add . && git commit -m "Mobile UI updates and fixes"`
+2. Push to branch: `git push origin main`
+3. Render will automatically detect the push and start a new build.
+
+### 2. Manual Update via Dashboard
+If Auto-Deploy is off or you want to force a refresh:
+1. Go to your **Render Dashboard**.
+2. Select the service you want to update (e.g., `technexus-quiz-platform`).
+3. Click the **"Manual Deploy"** button (top right).
+4. Select **"Clear Build Cache & Deploy"** to ensure a clean update.
+
+---
+
 ## ⚙️ Step 5: Configure CORS
 
 ### 5.1 Update AI Service CORS
@@ -183,18 +204,30 @@ Render's free tier has some limitations:
 - Services spin down after 15 minutes of inactivity
 - First request after spin-down may take 30-60 seconds
 - 750 hours/month of runtime per service
-
+Sync: 5e0c4ad
+5e0c4ad:Ultra-light memory fixes and health check
+2 minutes ago
+Update environment variable with key NODE_OPTIONS for web service technexus-quiz-platform
+Create environment variable with key NEXT_DISABLE_SOURCEMAPS for web service technexus-quiz-platform
+Create environment variable with key KNODE_COMPILE_CACHE for web service technexus-quiz-platform
+Create environment variable with key DISABLE_ESLINT_PLUGIN for web service technexus-quiz-platform
 ### Common Issues
 
 1. **Build Failures**
    - Check build logs in Render dashboard
-   - Ensure all dependencies are in `requirements.txt` or `package.json`
+    - Ensure all dependencies are in `requirements.txt` or `package.json`
+    - Verify that your `rootDir` settings in Render match your folder structure
 
-2. **Environment Variables**
+2. **Environment Variables & Protocols**
+    - The application is designed to handle Render's internal hostnames.
+    - If you use Blueprint, `NEXT_PUBLIC_SOCKET_URL` might be set to just the hostname (e.g., `technexus-realtime-service.onrender.com`).
+    - The code automatically adds `https://` if it's missing, but it's always safest to provide the full URL in the dashboard if you are setting it manually.
+
+3. **Environment Variables**
    - Double-check all URLs and API keys
    - Ensure no trailing slashes in URLs
 
-3. **CORS Errors**
+4. **CORS Errors**
    - Update CORS settings in both AI and Realtime services
    - Add your Render URLs to allowed origins
 
