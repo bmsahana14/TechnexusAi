@@ -31,7 +31,7 @@ services:
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0
+        value: 20.x
 
   # Frontend (Next.js)
   - type: web
@@ -63,4 +63,4 @@ services:
       - key: NEXT_PUBLIC_AI_SERVICE_URL
         sync: false
       - key: NODE_VERSION
-        value: 18.17.0
+        value: 20.x
