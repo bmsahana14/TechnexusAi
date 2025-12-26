@@ -86,19 +86,19 @@ export default function Home() {
             AI-Powered Quiz Platform
           </motion.div>
 
-          <h1 className="text-7xl md:text-9xl font-black tracking-tighter font-heading text-gradient leading-none">
+          <h1 className="text-6xl sm:text-7xl md:text-9xl font-black tracking-tighter font-heading text-gradient leading-tight md:leading-none">
             TechNexus AI
           </h1>
 
           <motion.p
-            className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed"
+            className="text-xl sm:text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
             Transform presentations into <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive quizzes</span> instantly.
             <br />
-            <span className="text-lg text-slate-400 mt-2 block">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
+            <span className="text-base sm:text-lg text-slate-400 mt-4 block">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
           </motion.p>
         </motion.div>
 

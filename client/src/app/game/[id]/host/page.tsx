@@ -113,12 +113,12 @@ export default function HostGameView() {
 
     if (status === 'LOBBY') {
         return (
-            <div className="min-h-screen flex flex-col p-12 bg-[#0f172a] text-white relative overflow-hidden">
+            <div className="min-h-screen flex flex-col p-6 md:p-12 bg-[#0f172a] text-white relative overflow-hidden">
                 {/* Background effects */}
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.1),transparent_70%)] pointer-events-none" />
 
-                <header className="flex justify-between items-start mb-20 relative z-10">
-                    <div className="space-y-4">
+                <header className="flex flex-col md:flex-row justify-between items-center md:items-start mb-12 md:mb-20 relative z-10 gap-8">
+                    <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20 text-indigo-400 font-bold text-sm uppercase tracking-widest">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -126,11 +126,11 @@ export default function HostGameView() {
                             </span>
                             Live Arena Open
                         </div>
-                        <h2 className="text-2xl text-slate-400 font-medium">Participants join with code:</h2>
+                        <h2 className="text-xl md:text-2xl text-slate-400 font-medium tracking-tight">Participants join with code:</h2>
                         <motion.h1
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="text-9xl font-black tracking-tighter text-indigo-400 drop-shadow-[0_0_30px_rgba(99,102,241,0.4)]"
+                            className="text-7xl sm:text-8xl md:text-9xl font-black tracking-tighter text-indigo-400 drop-shadow-[0_0_30px_rgba(99,102,241,0.4)]"
                         >
                             {quizId}
                         </motion.h1>
@@ -140,21 +140,21 @@ export default function HostGameView() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="mt-8"
+                            className="mt-4 md:mt-8"
                         >
-                            <div className="glass-card p-6 inline-block border-indigo-500/20">
-                                <div className="flex items-center gap-2 mb-3">
+                            <div className="glass-card p-4 md:p-6 inline-block border-indigo-500/20">
+                                <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
                                     <QrCode size={16} className="text-indigo-400" />
-                                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Scan to Join</p>
+                                    <p className="text-[10px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest">Scan to Join</p>
                                 </div>
-                                <div className="bg-white p-4 rounded-xl">
+                                <div className="bg-white p-2 md:p-4 rounded-xl">
                                     <QRCode
                                         value={`${typeof window !== 'undefined' ? window.location.origin : ''}/join?pin=${quizId}`}
-                                        size={180}
+                                        size={typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180}
                                         level="H"
                                     />
                                 </div>
-                                <p className="text-xs text-slate-500 text-center mt-3 font-medium">Quick mobile access</p>
+                                <p className="text-[10px] md:text-xs text-slate-500 text-center mt-3 font-medium">Quick mobile access</p>
                             </div>
                         </motion.div>
                     </div>
@@ -166,10 +166,10 @@ export default function HostGameView() {
                         disabled={players.length === 0}
                         className={`group flex flex-col items-center gap-4 ${players.length === 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                     >
-                        <div className="w-32 h-32 bg-white text-indigo-900 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.3)] group-hover:shadow-[0_0_70px_rgba(255,255,255,0.5)] transition-all">
-                            <Play size={48} fill="currentColor" className="translate-x-1" />
+                        <div className="w-24 h-24 md:w-32 md:h-32 bg-white text-indigo-900 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.3)] group-hover:shadow-[0_0_70px_rgba(255,255,255,0.5)] transition-all">
+                            <Play size={40} fill="currentColor" className="translate-x-1 md:size-[48px]" />
                         </div>
-                        <span className="text-xl font-black uppercase tracking-widest text-white">{players.length} Players Ready</span>
+                        <span className="text-lg md:text-xl font-black uppercase tracking-widest text-white">{players.length} Players Ready</span>
                     </motion.button>
                 </header>
 

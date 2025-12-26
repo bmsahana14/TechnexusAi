@@ -153,27 +153,29 @@ export default function PlayerGameView() {
             const correctText = currentQuestion.options[resultData.correctAnswer];
 
             return (
-                <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-1000 ${isCorrect ? 'bg-emerald-950' : 'bg-slate-900'}`}>
+                <div className={`min-h-screen flex flex-col items-center justify-center p-4 md:p-6 transition-colors duration-1000 ${isCorrect ? 'bg-emerald-950' : 'bg-slate-900'}`}>
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         className="text-center max-w-2xl w-full"
                     >
-                        <div className="mb-8 relative">
-                            <div className={`text-9xl mb-4 animate-bounce`}>
+                        <div className="mb-6 md:mb-8 relative">
+                            <div className="text-7xl sm:text-8xl md:text-9xl mb-4 animate-bounce">
                                 {isCorrect ? '🔥' : '🙊'}
                             </div>
-                            <h2 className={`text-6xl font-black font-heading uppercase tracking-tighter ${isCorrect ? 'text-emerald-400' : 'text-amber-500'}`}>
-                                {isCorrect ? 'ELITE!' : 'ALMOST!'}
+                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black font-heading uppercase tracking-tighter transition-all">
+                                <span className={isCorrect ? 'text-emerald-400' : 'text-amber-500'}>
+                                    {isCorrect ? 'ELITE!' : 'ALMOST!'}
+                                </span>
                             </h2>
-                            <p className="text-white/60 font-bold uppercase tracking-widest mt-2">
+                            <p className="text-white/60 text-xs sm:text-sm font-bold uppercase tracking-widest mt-2 px-4">
                                 {isCorrect ? 'You nailed it!' : 'Try to focus on the next one!'}
                             </p>
                         </div>
 
-                        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 mb-8 shadow-xl">
-                            <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-4">Correct Answer Was</p>
-                            <p className={`text-3xl font-black ${isCorrect ? 'text-emerald-400' : 'text-white'}`}>{correctText}</p>
+                        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/10 mb-6 md:mb-8 shadow-xl mx-4 sm:mx-0">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-4">Correct Answer Was</p>
+                            <p className={`text-xl sm:text-2xl md:text-3xl font-black ${isCorrect ? 'text-emerald-400' : 'text-white'}`}>{correctText}</p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3 w-full opacity-60 mb-8">
@@ -213,9 +215,9 @@ export default function PlayerGameView() {
                                                     }`}
                                             >
                                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${idx === 0 ? 'bg-yellow-500 text-yellow-950' :
-                                                        idx === 1 ? 'bg-slate-300 text-slate-900' :
-                                                            idx === 2 ? 'bg-orange-600 text-orange-950' :
-                                                                'bg-slate-700 text-slate-300'
+                                                    idx === 1 ? 'bg-slate-300 text-slate-900' :
+                                                        idx === 2 ? 'bg-orange-600 text-orange-950' :
+                                                            'bg-slate-700 text-slate-300'
                                                     }`}>
                                                     {idx + 1}
                                                 </div>
@@ -265,7 +267,7 @@ export default function PlayerGameView() {
                         exit={{ opacity: 0, y: -20 }}
                         className="flex-1 flex flex-col justify-center max-w-2xl mx-auto w-full"
                     >
-                        <div className="glass-card mb-10 p-10 text-center relative overflow-hidden border-white/5">
+                        <div className="glass-card mb-6 md:mb-10 p-6 sm:p-8 md:p-10 text-center relative overflow-hidden border-white/5 mx-4 sm:mx-0">
                             {/* Liquid Progress Bar */}
                             <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-800">
                                 <motion.div
@@ -276,7 +278,7 @@ export default function PlayerGameView() {
                                 />
                             </div>
 
-                            <div className="flex justify-between items-center mb-8">
+                            <div className="flex justify-between items-center mb-6 md:mb-8">
                                 <div className="px-3 py-1 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2 text-white">
                                     <span className="text-[10px] font-black font-mono text-slate-500 uppercase">Step</span>
                                     <span className="text-xs font-black font-mono text-indigo-400">{currentQuestion.index + 1}</span>
@@ -288,7 +290,7 @@ export default function PlayerGameView() {
                                 </div>
                             </div>
 
-                            <h2 className="text-3xl font-black font-heading leading-tight">{currentQuestion.q}</h2>
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-black font-heading leading-tight">{currentQuestion.q}</h2>
                         </div>
 
                         <div className={`grid grid-cols-1 gap-4 transition-all duration-500 ${hasAnswered ? 'opacity-40 grayscale-[0.3]' : ''}`}>
