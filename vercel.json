@@ -1,6 +1,15 @@
 {
-    "buildCommand": "cd client && npm run build",
-    "outputDirectory": "client/.next",
-    "installCommand": "cd client && npm install",
-    "framework": "nextjs"
+    "version": 2,
+    "public": true,
+    "cleanUrls": true,
+    "buildCommand": "npm run build",
+    "installCommand": "npm install",
+    "framework": "nextjs",
+    "rootDirectory": "client",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/"
+        }
+    ]
 }
