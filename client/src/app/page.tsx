@@ -1,10 +1,25 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Sparkles, Zap, Trophy, ArrowRight, Shield } from "lucide-react";
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+        <div className="h-16 w-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-8 sm:p-20 relative overflow-hidden">
       {/* Enhanced Background Effects */}
@@ -83,7 +98,7 @@ export default function Home() {
           >
             Transform presentations into <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive quizzes</span> instantly.
             <br />
-            <span className="text-lg text-slate-400 mt-2 block">Powered by Google Gemini for the next generation of tech events.</span>
+            <span className="text-lg text-slate-400 mt-2 block">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
           </motion.p>
         </motion.div>
 
@@ -181,15 +196,14 @@ export default function Home() {
           transition={{ delay: 1.2 }}
         >
           {[
+            { value: "<30s", label: "Quiz Generation" },
             { value: "1000+", label: "Concurrent Users" },
-            { value: "&lt;30s", label: "Quiz Generation" },
             { value: "99.9%", label: "Uptime" }
           ].map((stat, index) => (
             <div key={index} className="text-center">
-              <div
-                className="text-4xl md:text-5xl font-black text-gradient mb-2"
-                dangerouslySetInnerHTML={{ __html: stat.value }}
-              />
+              <div className="text-4xl md:text-5xl font-black text-gradient mb-2">
+                {stat.value}
+              </div>
               <div className="text-sm text-slate-500 uppercase tracking-widest font-bold">{stat.label}</div>
             </div>
           ))}

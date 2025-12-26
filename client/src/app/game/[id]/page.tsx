@@ -34,8 +34,13 @@ export default function PlayerGameView() {
 
         // Auto-rejoin if we have a name stored (handles refreshes)
         const savedName = localStorage.getItem(`quiz_name_${quizId}`);
+        const savedAvatar = localStorage.getItem(`quiz_avatar_${quizId}`);
         if (savedName) {
-            socket.emit('join-quiz', { quizId, playerName: savedName });
+            socket.emit('join-quiz', {
+                quizId,
+                playerName: savedName,
+                avatar: savedAvatar || ""
+            });
         }
 
         // Request state on mount/refresh
@@ -113,11 +118,16 @@ export default function PlayerGameView() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="glass-card p-12 text-center max-w-md w-full border-indigo-500/10"
                 >
-                    <div className="h-20 w-20 bg-indigo-500/10 rounded-3xl flex items-center justify-center text-indigo-400 mx-auto mb-8 border border-indigo-500/20 relative">
-                        <Loader2 size={40} className="animate-spin" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <Star size={16} fill="currentColor" className="text-indigo-300" />
-                        </div>
+                    <div className="h-24 w-24 bg-slate-800 rounded-3xl flex items-center justify-center overflow-hidden mx-auto mb-8 border-2 border-indigo-500/30 shadow-2xl shadow-indigo-500/20">
+                        {typeof window !== 'undefined' && localStorage.getItem(`quiz_avatar_${quizId}`) ? (
+                            <img
+                                src={localStorage.getItem(`quiz_avatar_${quizId}`) || ""}
+                                alt="Your Avatar"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <Loader2 size={40} className="animate-spin text-indigo-400" />
+                        )}
                     </div>
 
                     <h1 className="text-4xl font-black mb-3 font-heading tracking-tight">You're In!</h1>
@@ -147,7 +157,7 @@ export default function PlayerGameView() {
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="text-center max-w-md w-full"
+                        className="text-center max-w-2xl w-full"
                     >
                         <div className="mb-8 relative">
                             <div className={`text-9xl mb-4 animate-bounce`}>
@@ -166,7 +176,7 @@ export default function PlayerGameView() {
                             <p className={`text-3xl font-black ${isCorrect ? 'text-emerald-400' : 'text-white'}`}>{correctText}</p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3 w-full opacity-60">
+                        <div className="grid grid-cols-1 gap-3 w-full opacity-60 mb-8">
                             {resultData.stats.map((s: any, i: number) => (
                                 <div key={i} className="relative h-12 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex items-center px-4">
                                     <div
@@ -181,7 +191,60 @@ export default function PlayerGameView() {
                             ))}
                         </div>
 
-                        <div className="mt-12 flex flex-col items-center gap-2">
+                        {/* Leaderboard Section */}
+                        {resultData.leaderboard && resultData.leaderboard.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 mb-8 shadow-xl"
+                            >
+                                <div className="flex items-center justify-center gap-2 mb-4">
+                                    <Trophy size={18} className="text-yellow-400" />
+                                    <p className="text-xs font-black text-white/60 uppercase tracking-[0.3em]">Live Leaderboard</p>
+                                </div>
+                                <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+                                    {resultData.leaderboard.map((player: any, idx: number) => {
+                                        const isMe = player.id === socket.id;
+                                        return (
+                                            <div
+                                                key={player.id}
+                                                className={`flex items-center gap-3 p-3 rounded-xl transition-all ${isMe ? 'bg-indigo-500/20 border border-indigo-500/40' : 'bg-white/5'
+                                                    }`}
+                                            >
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${idx === 0 ? 'bg-yellow-500 text-yellow-950' :
+                                                        idx === 1 ? 'bg-slate-300 text-slate-900' :
+                                                            idx === 2 ? 'bg-orange-600 text-orange-950' :
+                                                                'bg-slate-700 text-slate-300'
+                                                    }`}>
+                                                    {idx + 1}
+                                                </div>
+                                                <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10">
+                                                    {player.avatar ? (
+                                                        <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-sm text-white">
+                                                            {player.name ? player.name[0].toUpperCase() : '?'}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`font-bold text-sm truncate ${isMe ? 'text-indigo-300' : 'text-white'}`}>
+                                                        {player.name} {isMe && '(You)'}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-black text-lg text-indigo-400">{player.score}</p>
+                                                    <p className="text-[8px] text-slate-500 uppercase tracking-wider">pts</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        <div className="mt-8 flex flex-col items-center gap-2">
                             <div className="h-1.5 w-12 bg-white/20 rounded-full overflow-hidden">
                                 <motion.div className="h-full bg-white" animate={{ x: [-48, 48] }} transition={{ repeat: Infinity, duration: 1.5 }} />
                             </div>

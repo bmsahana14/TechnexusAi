@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
 
     // --- Participant Events ---
 
-    socket.on('join-quiz', ({ quizId, playerName }) => {
+    socket.on('join-quiz', ({ quizId, playerName, avatar }) => {
         if (!activeQuizzes.has(quizId)) {
             socket.emit('error', { message: 'Quiz not found or not active.' });
             return;
@@ -34,6 +34,7 @@ io.on('connection', (socket) => {
         // Add player
         quiz.participants.set(socket.id, {
             name: playerName,
+            avatar: avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${playerName}`,
             score: 0,
             id: socket.id,
             answers: []
@@ -42,10 +43,11 @@ io.on('connection', (socket) => {
         socket.join(quizId);
 
         // Notify all (especially host) of updated participant count and list
-        const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name }));
+        const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name, avatar: p.avatar }));
         io.to(quizId).emit('player-joined', {
             id: socket.id,
             name: playerName,
+            avatar: avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${playerName}`,
             count: quiz.participants.size,
             players: playerList
         });
@@ -64,7 +66,7 @@ io.on('connection', (socket) => {
     socket.on('get-room-state', ({ quizId }) => {
         const quiz = activeQuizzes.get(quizId);
         if (quiz) {
-            const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name }));
+            const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name, avatar: p.avatar }));
             socket.emit('room-state', {
                 state: quiz.state,
                 currentQuestion: quiz.currentQuestion,
@@ -171,13 +173,26 @@ io.on('connection', (socket) => {
             percent: totalVotes > 0 ? Math.round(((results[idx] || 0) / totalVotes) * 100) : 0
         }));
 
+        // Generate current leaderboard
+        const leaderboard = Array.from(quiz.participants.values())
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10) // Top 10
+            .map((p, i) => ({
+                id: p.id,
+                name: p.name,
+                avatar: p.avatar,
+                score: p.score,
+                rank: i + 1
+            }));
+
         // Broadcast results to everyone
         io.to(quizId).emit('question-results', {
             questionIndex,
             correctAnswer: q.correct,
             correctAnswerText: q.options[q.correct], // Added correct answer text
             stats: stats,
-            totalVotes
+            totalVotes,
+            leaderboard: leaderboard
         });
     });
 
@@ -215,10 +230,11 @@ io.on('connection', (socket) => {
                 const player = quiz.participants.get(socket.id);
                 quiz.participants.delete(socket.id);
 
-                const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name }));
+                const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name, avatar: p.avatar }));
                 io.to(quizId).emit('player-left', {
                     id: socket.id,
                     name: player.name,
+                    avatar: player.avatar,
                     count: quiz.participants.size,
                     players: playerList
                 });

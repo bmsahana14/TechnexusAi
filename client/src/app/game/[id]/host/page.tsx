@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { socket } from "@/lib/socket";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Users, Trophy, Play, ChevronRight, Crown, Star, ArrowLeft, Download, Layout } from "lucide-react";
+import { CheckCircle2, Users, Trophy, Play, ChevronRight, Crown, Star, ArrowLeft, Download, Layout, QrCode } from "lucide-react";
+import QRCode from "react-qr-code";
 
 export default function HostGameView() {
     const params = useParams();
@@ -18,6 +19,7 @@ export default function HostGameView() {
     const [isRevealed, setIsRevealed] = useState(false);
     const [stats, setStats] = useState<any[]>([]);
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
+    const [currentLeaderboard, setCurrentLeaderboard] = useState<any[]>([]);
 
     useEffect(() => {
         if (!socket.connected) socket.connect();
@@ -53,6 +55,7 @@ export default function HostGameView() {
             setAnsweredCount(0);
             setIsRevealed(false);
             setStats([]);
+            setCurrentLeaderboard([]);
         };
 
         const onAnswered = (data: { count: number, total: number }) => {
@@ -62,6 +65,12 @@ export default function HostGameView() {
         const onResults = (data: any) => {
             setIsRevealed(true);
             setStats(data.stats);
+            setCurrentLeaderboard(data.leaderboard || []);
+            // Update current question with correct answer for highlighting
+            setCurrentQuestion((prev: any) => ({
+                ...prev,
+                correctAnswer: data.correctAnswer
+            }));
         };
 
         const onQuizEnded = (data: { leaderboard: any[] }) => {
@@ -125,6 +134,29 @@ export default function HostGameView() {
                         >
                             {quizId}
                         </motion.h1>
+
+                        {/* QR Code Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="mt-8"
+                        >
+                            <div className="glass-card p-6 inline-block border-indigo-500/20">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <QrCode size={16} className="text-indigo-400" />
+                                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Scan to Join</p>
+                                </div>
+                                <div className="bg-white p-4 rounded-xl">
+                                    <QRCode
+                                        value={`${typeof window !== 'undefined' ? window.location.origin : ''}/join?pin=${quizId}`}
+                                        size={180}
+                                        level="H"
+                                    />
+                                </div>
+                                <p className="text-xs text-slate-500 text-center mt-3 font-medium">Quick mobile access</p>
+                            </div>
+                        </motion.div>
                     </div>
 
                     <motion.button
@@ -155,8 +187,14 @@ export default function HostGameView() {
                                     transition={{ delay: i * 0.05 }}
                                     className="glass-card p-6 text-center border-indigo-500/10 group hover:border-indigo-500/40"
                                 >
-                                    <div className="w-16 h-16 mx-auto bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl mb-4 flex items-center justify-center font-black text-2xl shadow-lg group-hover:rotate-12 transition-transform text-white">
-                                        {p.name ? p.name[0].toUpperCase() : '?'}
+                                    <div className="w-16 h-16 mx-auto bg-slate-800 rounded-2xl mb-4 flex items-center justify-center overflow-hidden border-2 border-indigo-500/20 shadow-lg group-hover:scale-110 transition-transform">
+                                        {p.avatar ? (
+                                            <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-2xl text-white">
+                                                {p.name ? p.name[0].toUpperCase() : '?'}
+                                            </div>
+                                        )}
                                     </div>
                                     <p className="font-bold text-lg truncate group-hover:text-indigo-300 transition-colors text-white">{p.name || 'Anonymous'}</p>
                                 </motion.div>
@@ -198,7 +236,7 @@ export default function HostGameView() {
                         Arena Results
                     </motion.div>
                     <h1 className="text-7xl font-black font-heading text-gradient tracking-tighter">
-                        Final Standings
+                        Leaderboard
                     </h1>
                 </header>
 
@@ -221,6 +259,15 @@ export default function HostGameView() {
                                             i === 2 ? 'bg-orange-600 text-orange-950' : 'bg-slate-800 text-slate-400'
                                         }`}>
                                         {i === 0 ? <Crown fill="currentColor" size={32} /> : i + 1}
+                                    </div>
+                                    <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/10 shadow-lg">
+                                        {p.avatar ? (
+                                            <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-2xl text-white">
+                                                {p.name ? p.name[0].toUpperCase() : '?'}
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <span className={`text-4xl font-black font-heading tracking-tight ${i === 0 ? 'text-yellow-400' : 'text-white'}`}>{p.name}</span>
@@ -401,13 +448,73 @@ export default function HostGameView() {
                                                 </div>
                                                 <div className="flex items-center gap-6">
                                                     <span className={`text-4xl font-black font-mono ${isCorrect ? 'text-emerald-400' : 'text-indigo-300'}`}>{s.percent}%</span>
-                                                    <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">{s.count} pts</span>
+                                                    <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">{s.count}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     );
                                 })}
                             </div>
+
+                            {/* Current Question Leaderboard */}
+                            {currentLeaderboard && currentLeaderboard.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="max-w-4xl mx-auto w-full mt-16"
+                                >
+                                    <div className="flex items-center justify-center gap-3 mb-8">
+                                        <Trophy size={24} className="text-yellow-400" fill="currentColor" />
+                                        <h3 className="text-2xl font-black text-white uppercase tracking-wider">Current Standings</h3>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {currentLeaderboard.slice(0, 10).map((player, idx) => (
+                                            <motion.div
+                                                key={player.id}
+                                                initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.6 + idx * 0.05 }}
+                                                className={`glass-card p-4 flex items-center gap-4 ${idx === 0 ? 'bg-yellow-500/10 border-yellow-500/30 ring-2 ring-yellow-500/20' :
+                                                    idx === 1 ? 'bg-slate-300/10 border-slate-300/30' :
+                                                        idx === 2 ? 'bg-orange-600/10 border-orange-600/30' :
+                                                            'bg-white/5 border-white/10'
+                                                    }`}
+                                            >
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg shadow-lg ${idx === 0 ? 'bg-yellow-500 text-yellow-950' :
+                                                    idx === 1 ? 'bg-slate-300 text-slate-900' :
+                                                        idx === 2 ? 'bg-orange-600 text-orange-950' :
+                                                            'bg-slate-700 text-slate-300'
+                                                    }`}>
+                                                    {idx === 0 ? <Crown fill="currentColor" size={24} /> : idx + 1}
+                                                </div>
+
+                                                <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white/10 shadow-md">
+                                                    {player.avatar ? (
+                                                        <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-lg text-white">
+                                                            {player.name ? player.name[0].toUpperCase() : '?'}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`font-black text-lg truncate ${idx === 0 ? 'text-yellow-400' : 'text-white'}`}>
+                                                        {player.name}
+                                                    </p>
+                                                </div>
+
+                                                <div className="text-right">
+                                                    <p className="text-2xl font-black text-indigo-400 font-mono">{player.score}</p>
+                                                    <p className="text-[8px] text-slate-500 uppercase tracking-wider font-bold">Points</p>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
