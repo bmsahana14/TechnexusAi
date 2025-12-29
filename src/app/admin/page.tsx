@@ -161,6 +161,10 @@ export default function AdminDashboard() {
         socket.on('player-joined', onParticipantJoined);
         socket.on('quiz-ended', (data) => addLog(`Arena #${data.quizId} completed!`, 'stat'));
 
+        if (!socket.connected) {
+            socket.connect();
+        }
+
         return () => {
             clearInterval(statsInterval);
             socket.off('room-created', onRoomCreated);

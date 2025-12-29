@@ -33,6 +33,7 @@ export default function JoinQuiz() {
 
         function onConnect() {
             console.log("Connected to socket server");
+            setLoading(false);
         }
 
         function onError(err: any) {
@@ -42,6 +43,11 @@ export default function JoinQuiz() {
 
         socket.on("connect", onConnect);
         socket.on("connect_error", onError);
+
+        // Proactively connect to wake up Render server
+        if (!socket.connected) {
+            socket.connect();
+        }
 
         return () => {
             socket.off("connect", onConnect);
@@ -104,12 +110,12 @@ export default function JoinQuiz() {
             if (joinTimeout) clearTimeout(joinTimeout);
         };
 
-        // Increased timeout for mobile connections
+        // High timeout for mobile & Render Free Tier cold starts
         const joinTimeout = setTimeout(() => {
             setLoading(false);
             cleanup();
-            alert("Connection Timeout: Is the arena server online? Check your internet connection.");
-        }, 15000);
+            alert("The Arena is waking up! This usually takes 45-60 seconds on the first try. Please wait 10 seconds and tap 'Enter Game' again. Once the light turns green, it will be fast!");
+        }, 60000);
 
         // Set up listeners BEFORE emitting
         socket.on('player-joined', handleJoined);
