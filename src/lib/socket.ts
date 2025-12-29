@@ -24,6 +24,6 @@ export const socket = io(URL, {
     reconnection: true,
     reconnectionAttempts: 60, // Increased from 20. Try for ~2 minutes (60 * 2s)
     reconnectionDelay: 2000,
-    transports: ['websocket', 'polling'],
-    timeout: 120000 // Increased from 60 seconds. 2 minutes for Render spin-up
+    transports: ['polling', 'websocket'], // Try polling first for faster wake-up
+    timeout: 120000 // 120 seconds for Render spin-up
 });

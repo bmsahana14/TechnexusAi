@@ -31,6 +31,7 @@ export default function AdminDashboard() {
     ]);
     const [showSupabaseWarning, setShowSupabaseWarning] = useState(true);
     const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(false);
+    const [serverStatus, setServerStatus] = useState<'CHECKING' | 'READY' | 'SLEEPING'>('CHECKING');
 
     const router = useRouter();
 
@@ -157,6 +158,20 @@ export default function AdminDashboard() {
             fetchRealtimeStats();
         };
 
+        // Wake up Render Server
+        const wakeUp = async () => {
+            try {
+                const url = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+                await fetch(url, { mode: 'no-cors' });
+                setServerStatus('READY');
+            } catch (e) {
+                setServerStatus('SLEEPING');
+            }
+        };
+        wakeUp();
+
+        const onConnect = () => setServerStatus('READY');
+        socket.on('connect', onConnect);
         socket.on('room-created', onRoomCreated);
         socket.on('player-joined', onParticipantJoined);
         socket.on('quiz-ended', (data) => addLog(`Arena #${data.quizId} completed!`, 'stat'));
@@ -167,6 +182,7 @@ export default function AdminDashboard() {
 
         return () => {
             clearInterval(statsInterval);
+            socket.off('connect', onConnect);
             socket.off('room-created', onRoomCreated);
             socket.off('player-joined', onParticipantJoined);
             socket.off('quiz-ended');
@@ -811,7 +827,18 @@ export default function AdminDashboard() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Real-time Metrics</h5>
+                                        <div className="flex items-center gap-3">
+                                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Live Stats</h2>
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-900/50 rounded-full border border-slate-800">
+                                                <div className={`h-1.5 w-1.5 rounded-full ${serverStatus === 'READY' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' :
+                                                        serverStatus === 'SLEEPING' ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'
+                                                    }`} />
+                                                <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
+                                                    {serverStatus === 'READY' ? 'Arena Online' :
+                                                        serverStatus === 'SLEEPING' ? 'Waking Up...' : 'Checking...'}
+                                                </span>
+                                            </div>
+                                        </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/10 text-center">
                                                 <div className="text-xl font-black text-indigo-400">{realtimeStats.totalParticipants}</div>

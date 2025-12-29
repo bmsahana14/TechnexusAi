@@ -16,6 +16,7 @@ export default function JoinQuiz() {
     const [avatarSeed, setAvatarSeed] = useState("");
     const [loading, setLoading] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
+    const [serverStatus, setServerStatus] = useState<'CHECKING' | 'SLEEPING' | 'READY'>('CHECKING');
     const router = useRouter();
 
     useEffect(() => {
@@ -31,20 +32,35 @@ export default function JoinQuiz() {
         // Generate a random seed on mount
         setAvatarSeed(Math.random().toString(36).substring(7));
 
+        // Proactive Server Ping to wake up Render
+        const wakeUpServer = async () => {
+            try {
+                const url = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+                const response = await fetch(url, { mode: 'no-cors' });
+                console.log("Server wake-up ping sent");
+                setServerStatus('READY');
+            } catch (err) {
+                console.warn("Server might be sleeping or unreachable:", err);
+                setServerStatus('SLEEPING');
+            }
+        };
+
+        wakeUpServer();
+
         function onConnect() {
             console.log("Connected to socket server");
+            setServerStatus('READY');
             setLoading(false);
         }
 
         function onError(err: any) {
             console.error("Socket error:", err);
-            setLoading(false);
+            // Don't set loading to false here, let the custom timeout handle it
         }
 
         socket.on("connect", onConnect);
         socket.on("connect_error", onError);
 
-        // Proactively connect to wake up Render server
         if (!socket.connected) {
             socket.connect();
         }
@@ -205,6 +221,18 @@ export default function JoinQuiz() {
                             </div>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black text-gradient font-heading tracking-tight mb-1">Join Arena</h1>
+
+                        {/* Server Status Indicator */}
+                        <div className="flex justify-center items-center gap-2 mb-4">
+                            <div className={`h-2 w-2 rounded-full ${serverStatus === 'READY' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
+                                    serverStatus === 'SLEEPING' ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'
+                                }`} />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                                {serverStatus === 'READY' ? 'Server Online' :
+                                    serverStatus === 'SLEEPING' ? 'Server Waking Up...' : 'Checking connection...'}
+                            </span>
+                        </div>
+
                         <p className="text-slate-500 text-[10px] sm:text-sm">Enter your details to enter the field.</p>
                     </div>
 
