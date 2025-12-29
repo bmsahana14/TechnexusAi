@@ -1,240 +1,116 @@
-# 🔐 Supabase Setup Guide for TechNexus AI Quiz Arena
+# 🔧 Supabase Setup Guide
 
-This guide will help you set up Supabase authentication and database for the quiz platform.
+## Current Issue
+You're seeing the error `Error saving quiz to DB: {}` because **Supabase is not configured**.
 
----
+## Why This Happens
+- The app is trying to save quizzes to a database, but no database credentials are set
+- Without proper Supabase credentials, the error object is empty
+- **Good news**: Your quizzes are still being saved locally in the browser!
 
-## 📋 Prerequisites
+## Quick Fix Options
 
-- A Supabase account (free tier works fine)
-- Basic understanding of SQL
-- Access to your project's environment variables
+### Option 1: Continue Without Database (Recommended for Testing)
+Your app works perfectly fine without Supabase! Quizzes are saved in your browser's local storage.
 
----
+**Pros:**
+- No setup required
+- Works immediately
+- Perfect for testing and development
 
-## 🚀 Step-by-Step Setup
+**Cons:**
+- Quizzes only available on this browser
+- Clearing browser data will delete quizzes
 
-### Step 1: Create a Supabase Project
+### Option 2: Set Up Supabase (For Production/Multi-Device)
 
+#### Step 1: Create a Supabase Project
 1. Go to [https://supabase.com](https://supabase.com)
-2. Click **"Start your project"** or **"New Project"**
-3. Fill in the details:
-   - **Name**: `technexus-quiz` (or your preferred name)
-   - **Database Password**: Choose a strong password (save this!)
-   - **Region**: Choose closest to your location
-   - **Pricing Plan**: Free tier is sufficient for development
-4. Click **"Create new project"**
-5. Wait 2-3 minutes for the project to be provisioned
+2. Sign up for a free account
+3. Click "New Project"
+4. Fill in:
+   - **Name**: TechNexus Quiz Arena
+   - **Database Password**: (create a strong password)
+   - **Region**: (choose closest to you)
+5. Click "Create new project" and wait 2-3 minutes
 
----
-
-### Step 2: Get Your API Credentials
-
-1. In your Supabase project dashboard, click on **Settings** (gear icon) in the left sidebar
-2. Click on **API** in the settings menu
-3. You'll see two important values:
-   - **Project URL** (looks like: `https://xxxxxxxxxxxxx.supabase.co`)
+#### Step 2: Get Your Credentials
+1. In your Supabase project, click the ⚙️ **Settings** icon (bottom left)
+2. Click **API** in the sidebar
+3. Copy these two values:
+   - **Project URL** (looks like: `https://xxxxx.supabase.co`)
    - **anon public** key (under "Project API keys")
-4. **Copy both values** - you'll need them in Step 4
 
----
+#### Step 3: Create Database Table
+1. In Supabase, click **SQL Editor** (left sidebar)
+2. Click **New Query**
+3. Paste this SQL:
 
-### Step 3: Set Up the Database Schema
+```sql
+-- Create quizzes table
+CREATE TABLE quizzes (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title TEXT NOT NULL,
+    questions JSONB NOT NULL,
+    creator_id TEXT NOT NULL,
+    room_id TEXT NOT NULL,
+    timer INTEGER DEFAULT 30,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-1. In your Supabase dashboard, click on **SQL Editor** in the left sidebar
-2. Click **"New query"**
-3. Copy the entire contents of `supabase_schema.sql` from your project
-4. Paste it into the SQL editor
-5. Click **"Run"** (or press Ctrl/Cmd + Enter)
-6. You should see: ✅ **Success. No rows returned**
+-- Add index for faster queries
+CREATE INDEX idx_quizzes_creator_id ON quizzes(creator_id);
+CREATE INDEX idx_quizzes_room_id ON quizzes(room_id);
 
-**What this does:**
-- Creates the `quizzes` table to store quiz data
-- Sets up Row Level Security (RLS) policies
-- Creates indexes for better performance
+-- Enable Row Level Security (RLS)
+ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 
----
+-- Create policy to allow all operations (for demo purposes)
+-- In production, you should restrict this!
+CREATE POLICY "Allow all operations for now" ON quizzes
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
+```
 
-### Step 4: Configure Environment Variables
+4. Click **Run** (or press F5)
 
-#### For the Client (Frontend)
-
-1. Navigate to the `client` folder in your project
-2. Create a file named `.env.local` (if it doesn't exist)
-3. Add the following content:
+#### Step 4: Configure Your App
+1. In your project folder, create a file named `.env.local`
+2. Add your credentials:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
+NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:5000
 ```
 
-4. **Replace the values:**
-   - `NEXT_PUBLIC_SUPABASE_URL`: Your Project URL from Step 2
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your anon public key from Step 2
-   - Keep `NEXT_PUBLIC_SOCKET_URL` as is for local development
+3. **Replace** `your-project-id.supabase.co` with your actual Project URL
+4. **Replace** `your-anon-key-here` with your actual anon key
 
-**Example:**
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijklmnop.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjQzMjAwMCwiZXhwIjoxOTMxOTk0MDAwfQ.example-key-here
-NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
-```
+#### Step 5: Restart Your App
+1. Stop the development server (Ctrl+C in the terminal)
+2. Start it again: `npm run dev`
+3. Refresh your browser
 
----
+## Verify It's Working
 
-### Step 5: Create Your First Admin User
+After setup, when you create a quiz:
+- ✅ You should see: `Quiz saved to database successfully!` in the console
+- ❌ No more: `Error saving quiz to DB: {}`
 
-You have **two options** to create an admin account:
+## Troubleshooting
 
-#### Option A: Using Supabase Dashboard (Recommended)
+### Still seeing errors?
+1. Check that `.env.local` exists in the root folder (same level as `package.json`)
+2. Verify the credentials are correct (no extra spaces)
+3. Make sure you restarted the dev server after creating `.env.local`
+4. Check the browser console for more detailed error messages
 
-1. In Supabase dashboard, click **Authentication** in the left sidebar
-2. Click **Users** tab
-3. Click **"Add user"** button
-4. Choose **"Create new user"**
-5. Fill in:
-   - **Email**: Your admin email (e.g., `admin@technexus.com`)
-   - **Password**: Choose a strong password
-   - **Auto Confirm User**: ✅ Check this box (important!)
-6. Click **"Create user"**
+### Want to disable Supabase entirely?
+The app works great without it! Just ignore the warning messages. Your quizzes will be saved locally.
 
-#### Option B: Using Sign Up Page (Alternative)
-
-1. Start your development server: `npm run dev` (in the client folder)
-2. Navigate to: `http://localhost:3000/login`
-3. You'll need to create a signup page first (see below)
-
----
-
-### Step 6: Test the Connection
-
-1. **Restart your development server** if it's running:
-   ```bash
-   # Stop the server (Ctrl+C)
-   # Then restart
-   cd client
-   npm run dev
-   ```
-
-2. **Open your browser** and go to: `http://localhost:3000/login`
-
-3. **Try logging in** with the credentials you created in Step 5
-
-4. **If successful**, you should be redirected to `/admin`
-
----
-
-## 🔧 Troubleshooting
-
-### Issue: "Invalid login credentials"
-
-**Possible causes:**
-- Wrong email or password
-- User not confirmed (check "Auto Confirm User" in Step 5)
-- Supabase credentials not set correctly
-
-**Solutions:**
-1. Double-check your email and password
-2. Verify the user is confirmed in Supabase Dashboard → Authentication → Users
-3. Check that `.env.local` has the correct values
-4. Restart your dev server after changing `.env.local`
-
----
-
-### Issue: "Failed to fetch" or Network Error
-
-**Possible causes:**
-- Supabase URL is incorrect
-- Network connectivity issues
-- CORS configuration
-
-**Solutions:**
-1. Verify `NEXT_PUBLIC_SUPABASE_URL` in `.env.local` is correct
-2. Check your internet connection
-3. Make sure the URL starts with `https://` and ends with `.supabase.co`
-
----
-
-### Issue: "Invalid API key"
-
-**Possible causes:**
-- Wrong anon key copied
-- Extra spaces in the key
-- Using the wrong key (service_role instead of anon)
-
-**Solutions:**
-1. Go back to Supabase Dashboard → Settings → API
-2. Copy the **anon public** key (not service_role!)
-3. Make sure there are no extra spaces or line breaks
-4. Paste it correctly in `.env.local`
-
----
-
-### Issue: Environment variables not loading
-
-**Solutions:**
-1. Make sure the file is named exactly `.env.local` (not `.env` or `env.local`)
-2. The file should be in the `client` folder (not the root)
-3. Restart your Next.js dev server after creating/editing `.env.local`
-4. Check for syntax errors in the `.env.local` file
-
----
-
-## 📝 Quick Verification Checklist
-
-Before testing, verify:
-
-- [ ] Supabase project is created and active
-- [ ] Database schema is executed successfully
-- [ ] `.env.local` file exists in the `client` folder
-- [ ] `NEXT_PUBLIC_SUPABASE_URL` is set correctly
-- [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY` is set correctly
-- [ ] At least one admin user is created and confirmed
-- [ ] Development server is restarted after env changes
-
----
-
-## 🎯 Next Steps
-
-Once Supabase is connected:
-
-1. **Test Login**: Try logging in at `/login`
-2. **Create a Quiz**: Upload a PDF/PPTX in the admin dashboard
-3. **Host a Session**: Launch a live quiz
-4. **Join as Player**: Test the player experience
-
----
-
-## 🔒 Security Best Practices
-
-1. **Never commit `.env.local`** to version control (it's in `.gitignore`)
-2. **Use strong passwords** for admin accounts
-3. **Enable 2FA** on your Supabase account
-4. **Rotate keys** if they're ever exposed
-5. **Use environment-specific** credentials (dev vs production)
-
----
-
-## 📚 Additional Resources
-
+## Need Help?
 - [Supabase Documentation](https://supabase.com/docs)
-- [Supabase Auth Guide](https://supabase.com/docs/guides/auth)
-- [Next.js Environment Variables](https://nextjs.org/docs/basic-features/environment-variables)
-
----
-
-## 🆘 Still Having Issues?
-
-If you're still experiencing problems:
-
-1. Check the browser console for error messages (F12 → Console tab)
-2. Check the terminal where your dev server is running for errors
-3. Verify all steps above are completed correctly
-4. Try creating a new Supabase project and starting fresh
-5. Check if Supabase is experiencing any outages: [status.supabase.com](https://status.supabase.com)
-
----
-
-**Last Updated**: December 25, 2025  
-**Version**: 1.1.0
+- [TechNexus Arena GitHub Issues](https://github.com/yourusername/quiz-app/issues)

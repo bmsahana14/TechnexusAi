@@ -30,7 +30,10 @@ export default function HostGameView() {
         const onRoomState = (data: any) => {
             if (data.participants) setPlayers(data.participants);
             if (data.state === 'ACTIVE') setStatus('ACTIVE');
-            if (data.state === 'ENDED') setStatus('ENDED');
+            if (data.state === 'ENDED') {
+                setStatus('ENDED');
+                if (data.leaderboard) setLeaderboard(data.leaderboard);
+            }
         };
 
         const onPlayerJoined = (data: any) => {
@@ -212,7 +215,7 @@ export default function HostGameView() {
                 </main>
 
                 <footer className="mt-12 pt-8 border-t border-white/5 text-slate-500 text-sm font-medium flex justify-between items-center relative z-10">
-                    <p>© 2025 TechNexus AI Arena • Real-time Interactive System</p>
+                    <p>© 2025 TechNexus Arena • Real-time Interactive System</p>
                     <div className="flex gap-6">
                         <span>Low Latency Mode</span>
                         <span className="text-indigo-400 font-bold">Stable Connection</span>

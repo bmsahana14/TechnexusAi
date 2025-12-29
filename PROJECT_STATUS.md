@@ -7,7 +7,7 @@
 
 ## 📊 Executive Summary
 
-The TechNexus AI Quiz Arena is a **fully functional, production-ready** real-time quiz platform with AI-powered question generation. All core features are implemented and tested.
+The TechNexus AI Quiz Arena is a **fully functional, production-ready** real-time quiz platform where admins can manually create and manage interactive quizzes. The PDF/PPTX conversion feature has been removed to prioritize manual content control.
 
 ### ✅ Completion Status: 100%
 
@@ -32,12 +32,10 @@ The TechNexus AI Quiz Arena is a **fully functional, production-ready** real-tim
                   │
         ┌─────────┴─────────┐
         │                   │
-┌───────▼──────────┐  ┌────▼────────────────────────────┐
-│  REALTIME (4000) │  │    AI SERVICE (8000)            │
-│  Node.js         │  │    Python FastAPI               │
-│  Socket.IO       │  │    Google Gemini / OpenAI       │
-│  Express         │  │    PDF/PPTX Processing          │
-└──────────────────┘  └─────────────────────────────────┘
+│  AI SERVICE (8000)            │
+│  Node.js Realtime Helper       │
+│  (PDF Processing Removed)      │
+└─────────────────────────────────┘
 ```
 
 ---
@@ -103,8 +101,8 @@ quiz app/
    - Session management
 
 3. **Admin Dashboard** (`/admin`)
-   - File upload (PDF/PPTX)
-   - Quiz generation with AI
+   - Manual question entry (Admin)
+   - Real-time quiz creation
    - Question preview and editing
    - Room creation and management
    - Real-time participant monitoring
@@ -142,14 +140,12 @@ quiz app/
 ### ✅ Capabilities
 
 1. **Multi-Provider Support**
-   - **Google Gemini** (Primary, Free tier)
-   - **OpenAI GPT-4o-mini** (Fallback)
+    - Google Gemini (Available for manual helper tasks)
+    - OpenAI (Available for manual helper tasks)
    - **Placeholder mode** (Testing without API key)
 
 2. **File Processing**
-   - PDF text extraction (pypdf)
-   - PPTX text extraction (python-pptx)
-   - Content truncation for token limits (15,000 chars)
+    - (PDF/PPTX extraction logic removed)
 
 3. **Quiz Generation**
    - Contextual questions from uploaded content

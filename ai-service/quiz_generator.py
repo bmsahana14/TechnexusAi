@@ -5,8 +5,7 @@ from typing import List, Dict, Any
 from pathlib import Path
 
 # External libs
-from pptx import Presentation
-from pypdf import PdfReader
+
 from dotenv import load_dotenv
 
 # Try to import Google Gemini, fallback to OpenAI if not available
@@ -90,76 +89,22 @@ else:
 print("=" * 60)
 
 
-async def generate_quiz_from_file(file_path: str, num_questions: int, difficulty: str) -> List[Dict[str, Any]]:
+async def generate_quiz_from_content(content: str, num_questions: int, difficulty: str) -> List[Dict[str, Any]]:
     """
-    Orchestrates the conversion of a file > text > quiz questions
+    Generates quiz questions from provided text content
     """
-    
-    print(f"\n{'='*60}")
-    print(f"QUIZ GENERATION REQUEST")
-    print(f"{'='*60}")
-    print(f"File: {file_path}")
-    print(f"Questions: {num_questions}")
-    print(f"Difficulty: {difficulty}")
-    print(f"AI Provider: {AI_PROVIDER}")
-    
-    # 1. Extract content
     try:
-        if file_path.endswith('.pptx'):
-            print("Extracting text from PPTX...")
-            text_content = extract_text_from_pptx(file_path)
-        elif file_path.endswith('.pdf'):
-            print("Extracting text from PDF...")
-            text_content = extract_text_from_pdf(file_path)
-        else:
-            raise ValueError("Unsupported file format")
-            
-        print(f"OK: Extracted {len(text_content)} characters from file")
-        
-        if len(text_content) < 100:
-            print(f"WARNING: Very little text extracted ({len(text_content)} chars)")
-            print(f"   Preview: {text_content[:200]}")
-        else:
-            print(f"   Preview: {text_content[:200]}...")
-        
-        # 2. Limit content for context window
+        # 1. Limit content for context window
         max_chars = 15000 
-        if len(text_content) > max_chars:
-            print(f"📝 Truncating content from {len(text_content)} to {max_chars} characters")
-            text_content = text_content[:max_chars] + "...[truncated]"
+        if len(content) > max_chars:
+            content = content[:max_chars] + "...[truncated]"
 
-        # 3. Generate via LLM
-        print(f"Sending to {AI_PROVIDER.upper()} for quiz generation...")
-        questions = query_llm_for_quiz(text_content, num_questions, difficulty)
-        
-        print("OK: Generated questions successfully")
-        print(f"{'='*60}\n")
-        return questions
+        # 2. Generate via LLM
+        return query_llm_for_quiz(content, num_questions, difficulty)
         
     except Exception as e:
-        import traceback
-        print("ERROR in quiz generation:")
-        traceback.print_exc()
-        print(f"Error: {e}")
-        print("WARNING: Returning fallback questions")
-        print(f"{'='*60}\n")
+        print(f"Error in quiz generation from content: {e}")
         return get_fallback_questions()
-
-def extract_text_from_pptx(path: str) -> str:
-    prs = Presentation(path)
-    text_runs = []
-    for slide in prs.slides:
-        for shape in slide.shapes:
-            if hasattr(shape, "text"):
-                text_runs.append(shape.text)
-    return "\n".join(text_runs)
-
-def extract_text_from_pdf(path: str) -> str:
-    reader = PdfReader(path)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text() + "\n"
-    return text
 
 def query_llm_for_quiz(content: str, count: int, difficulty: str) -> List[Dict[str, Any]]:
     

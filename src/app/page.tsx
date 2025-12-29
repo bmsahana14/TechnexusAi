@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, Zap, Trophy, ArrowRight, Shield } from "lucide-react";
+import { Sparkles, Zap, Trophy, ArrowRight, Shield, Plus, Layout } from "lucide-react";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -83,11 +83,11 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 backdrop-blur-sm border border-indigo-500/20 rounded-full text-indigo-300 text-sm font-bold uppercase tracking-widest mb-4"
           >
             <Sparkles size={16} className="animate-pulse" />
-            AI-Powered Quiz Platform
+            Interactive Quiz Platform
           </motion.div>
 
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter font-heading text-gradient leading-[1.1] md:leading-none">
-            TechNexus AI
+            TechNexus Arena
           </h1>
 
           <motion.p
@@ -96,9 +96,9 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            Transform presentations into <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive quizzes</span> instantly.
+            Transform your events into <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive experiences</span>.
             <br />
-            <span className="text-sm sm:text-lg text-slate-400 mt-4 block max-w-2xl mx-auto">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
+            <span className="text-sm sm:text-lg text-slate-400 mt-4 block max-w-2xl mx-auto">Create custom quizzes, engage your community, and dominate the leaderboard in real-time.</span>
           </motion.p>
         </motion.div>
 
@@ -125,8 +125,8 @@ export default function Home() {
             href="/login"
             className="w-full sm:w-auto group px-8 sm:px-12 py-5 sm:py-6 glass text-white rounded-2xl font-bold text-lg sm:text-xl hover:bg-white/10 transition-all border border-white/10 hover:border-indigo-400/50 hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
           >
-            <Sparkles size={20} className="sm:size-6 group-hover:rotate-12 transition-transform" />
-            Create with AI
+            <Plus size={20} className="sm:size-6 group-hover:rotate-12 transition-transform" />
+            Create Quiz
           </Link>
         </motion.div>
 
@@ -139,11 +139,11 @@ export default function Home() {
         >
           {[
             {
-              icon: <Sparkles size={28} />,
+              icon: <Layout size={28} />,
               color: "indigo",
               styles: "bg-indigo-500/20 text-indigo-400 border-indigo-500/20",
-              title: "Instant Generation",
-              description: "Upload PPT or PDF files and watch AI generate high-quality questions in under 30 seconds.",
+              title: "Manual Creation",
+              description: "Full control over your questions. Create custom quizzes tailored to your audience's needs.",
               gradient: "from-indigo-500/20 to-indigo-500/5"
             },
             {
@@ -175,7 +175,7 @@ export default function Home() {
 
               <div className="relative z-10">
                 <div className={`h-14 w-14 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${feature.styles}`}>
-                  {feature.icon}
+                  {feature.icon || <Sparkles size={28} />}
                 </div>
                 <h3 className="text-2xl font-black mb-3 font-heading group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-400 group-hover:to-purple-400 transition-all">
                   {feature.title}
@@ -196,7 +196,7 @@ export default function Home() {
           transition={{ delay: 1.2 }}
         >
           {[
-            { value: "<30s", label: "Quiz Generation" },
+            { value: "100%", label: "Manual Control" },
             { value: "1000+", label: "Concurrent Users" },
             { value: "99.9%", label: "Uptime" }
           ].map((stat, index) => (

@@ -330,40 +330,40 @@ export default function HostGameView() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col p-12 bg-[#0f172a] text-white relative overflow-hidden">
+        <div className="min-h-screen flex flex-col p-4 sm:p-6 md:p-12 bg-[#0f172a] text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/5 blur-[120px] pointer-events-none" />
 
-            <header className="flex justify-between items-center mb-12 relative z-10">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/30">
-                        <Layout className="text-white" size={32} />
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 relative z-10 gap-4">
+                <div className="flex items-center gap-3 md:gap-4">
+                    <div className="p-2 md:p-3 bg-indigo-500 rounded-xl md:rounded-2xl shadow-lg shadow-indigo-500/30">
+                        <Layout className="text-white" size={24} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black font-heading tracking-tight italic uppercase">Question <span className="text-indigo-400">{currentQIndex + 1}</span></h1>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black font-heading tracking-tight italic uppercase">Question <span className="text-indigo-400">{currentQIndex + 1}</span></h1>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Live Arena Hub</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="flex flex-col items-end">
-                        <span className="text-4xl font-black text-indigo-400">{answeredCount}/{players.length}</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 w-full md:w-auto">
+                    <div className="flex flex-col items-start sm:items-end">
+                        <span className="text-3xl md:text-4xl font-black text-indigo-400">{answeredCount}/{players.length}</span>
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Responses Received</span>
                     </div>
                     {!isRevealed ? (
                         <button
                             onClick={revealResults}
-                            className="bg-purple-600 hover:bg-purple-500 px-8 py-4 text-lg font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-purple-500/20 active:scale-95 flex items-center gap-2"
+                            className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-purple-500/20 active:scale-95 flex items-center justify-center gap-2"
                         >
                             Reveal Results
-                            <Star size={20} fill="currentColor" />
+                            <Star size={18} fill="currentColor" />
                         </button>
                     ) : (
                         <button
                             onClick={nextQuestion}
-                            className="btn-primary px-8 py-4 text-lg font-black uppercase tracking-widest transition-all group flex items-center gap-2"
+                            className="w-full sm:w-auto btn-primary px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-black uppercase tracking-widest transition-all group flex items-center justify-center gap-2"
                         >
                             Next Question
-                            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </button>
                     )}
                 </div>
@@ -377,21 +377,21 @@ export default function HostGameView() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="w-full text-center space-y-12"
+                            className="w-full text-center space-y-8 md:space-y-12"
                         >
-                            <h2 className="text-6xl font-black leading-tight font-heading">
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight font-heading px-4">
                                 {currentQuestion?.question || "Loading question..."}
                             </h2>
 
-                            <div className="grid grid-cols-2 gap-6 w-full max-w-4xl mx-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 w-full max-w-4xl mx-auto px-4">
                                 {currentQuestion?.options.map((opt: string, i: number) => {
                                     const colors = ['border-blue-500/30 text-blue-400', 'border-purple-500/30 text-purple-400', 'border-amber-500/30 text-amber-400', 'border-emerald-500/30 text-emerald-400'];
                                     return (
-                                        <div key={i} className={`p-6 bg-white/5 border rounded-2xl text-left text-xl font-bold flex items-center gap-4 ${colors[i % 4]}`}>
-                                            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-sm font-black">
+                                        <div key={i} className={`p-4 md:p-6 bg-white/5 border rounded-xl md:rounded-2xl text-left text-base md:text-xl font-bold flex items-center gap-3 md:gap-4 ${colors[i % 4]}`}>
+                                            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-white/10 flex items-center justify-center text-xs md:text-sm font-black flex-shrink-0">
                                                 {String.fromCharCode(65 + i)}
                                             </div>
-                                            {opt}
+                                            <span className="break-words">{opt}</span>
                                         </div>
                                     );
                                 })}

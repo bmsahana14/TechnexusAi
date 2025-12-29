@@ -1,28 +1,56 @@
-# 🎮 TechNexus AI Quiz Platform
+# 🎮 TechNexus Arena v2.5.0
 
-An interactive, real-time quiz platform powered by AI that generates questions from uploaded documents (PDF, PPTX). Built with Next.js, FastAPI, and Socket.io.
+An interactive, real-time quiz platform powered by TechNexus Community. Create engaging quizzes manually and compete with friends in real-time!
+
+[![Version](https://img.shields.io/badge/version-2.5.0-blue.svg)](https://github.com/yourusername/technexus-ai-quiz)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.11-blue.svg)](https://python.org)
 
 ## ✨ Features
 
-- 🤖 **AI-Powered Quiz Generation** - Upload PDFs/PPTX and get contextual questions using Google Gemini
-- ⚡ **Real-time Multiplayer** - Live quiz sessions with WebSocket support
-- 📊 **Dynamic Leaderboards** - Real-time score tracking and rankings
-- 🎨 **Modern UI** - Beautiful, responsive design with animations
+- 🎯 **Manual Quiz Creation** - Full creative control over your questions in the admin dashboard
+- ⚡ **Real-time Multiplayer** - Live quiz sessions with WebSocket support for 1000+ concurrent players
+- 📊 **Dynamic Leaderboards** - Real-time score tracking with time-based bonuses
+- 🎨 **Modern UI** - Beautiful, responsive design with Framer Motion animations
 - 📱 **QR Code Join** - Easy participant joining via QR codes
 - 🎯 **Interactive Polls** - Live answer distribution visualization
 - 🏆 **Gamification** - Points, rankings, and engaging feedback
+- 🔒 **Secure** - Helmet.js security headers and connection limits
+- 📈 **Scalable** - Microservices architecture ready for Redis scaling
+- 🎭 **Fun Avatars** - Unique DiceBear avatars for each participant
+- 💬 **TechNexus Chatbot** - Interactive community assistant on every page
+- 🌐 **Community Powered** - Built by [TechNexus Community](https://www.linkedin.com/company/technexuscommunity/)
 
 ## 🏗️ Architecture
 
-The platform consists of three microservices:
+The platform consists of three core services:
 
-1. **Frontend (Next.js)** - Main web application
-2. **AI Service (Python/FastAPI)** - Quiz generation backend
-3. **Realtime Service (Node.js)** - WebSocket server for real-time features
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Frontend      │────▶│  Realtime        │────▶│   AI Service    │
+│   (Next.js)     │     │  Service         │     │   (FastAPI)     │
+│   Port: 3000    │     │  (Node.js)       │     │   Port: 8000    │
+│                 │     │  Port: 4000      │     │                 │
+│  - UI/UX        │     │  - WebSockets    │     │  - Status Check │
+│  - Editor       │     │  - Game Logic    │     │  - Health Mon   │
+│  - State Mgmt   │     │  - Real-time     │     │                 │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+         │                       │                         │
+         └───────────────────────┴─────────────────────────┘
+                            Supabase
+                         (PostgreSQL)
+```
 
 ## 🚀 Quick Start
 
-### Local Development
+### Prerequisites
+
+- **Node.js** 18+ and npm 9+
+- **Python** 3.11+
+- **Supabase Account** ([Sign up free](https://supabase.com))
+
+### Installation
 
 1. **Clone the repository**
    ```bash
@@ -31,136 +59,124 @@ The platform consists of three microservices:
    ```
 
 2. **Set up environment variables**
-   - Copy `.env.local.example` to `.env.local`
-   - Copy `ai-service/.env.example` to `ai-service/.env`
-   - Copy `realtime-service/.env.example` to `realtime-service/.env`
-   - Fill in your API keys (Supabase, Gemini)
-
-3. **Start all services**
+   
+   **Frontend (.env.local):**
    ```bash
-   # Option 1: Use the workflow
-   # See .agent/workflows/start-services.md
-
-   # Option 2: Manual start
-   # Terminal 1 - AI Service
-   cd ai-service
-   pip install -r requirements.txt
-   python main.py
-
-   # Terminal 2 - Realtime Service
-   cd realtime-service
-   npm install
-   npm start
-
-   # Terminal 3 - Frontend
-   npm install
-   npm run dev
+   cp .env.local.example .env.local
+   # Edit .env.local with your Supabase credentials
    ```
 
-4. **Open the app**
+3. **Install dependencies**
+   ```bash
+   # Install all packages
+   npm install
+   
+   # Setup Realtime Service
+   cd realtime-service
+   npm install
+   cd ..
+   
+   # Setup AI Service
+   cd ai-service
+   pip install -r requirements.txt
+   cd ..
+   ```
+
+4. **Start all services**
+   
+   **Option 1: Use the batch script (Windows)**
+   ```bash
+   ./start-all-services.bat
+   ```
+
+5. **Open the app**
    - Frontend: http://localhost:3000
    - AI Service: http://localhost:8000
    - Realtime Service: http://localhost:4000
 
-### 🌐 Deploy to Production
-
-**Fastest way to deploy to Render (5 minutes):**
-
-See **[DEPLOY_TO_RENDER.md](./DEPLOY_TO_RENDER.md)** for the quickest deployment guide.
-
-**Detailed deployment guides:**
-- [Render Deployment Guide](./RENDER_DEPLOYMENT.md) - Comprehensive step-by-step
-- [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) - Pre/post-deployment tasks
-
-**Quick deploy:**
-1. Push code to GitHub
-2. Go to [Render Dashboard](https://dashboard.render.com/)
-3. Click "New +" → "Blueprint"
-4. Select your repository (render.yaml will be auto-detected)
-5. Configure environment variables
-6. Deploy!
-
-## 📋 Requirements
-
-- **Node.js** 18+ (for Frontend and Realtime Service)
-- **Python** 3.11+ (for AI Service)
-- **Supabase Account** (for database and auth)
-- **Google Gemini API Key** (for AI quiz generation)
-
-## 🔧 Configuration
-
-### Environment Variables
-
-#### Frontend (.env.local)
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_SOCKET_URL=http://localhost:4000
-NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8000
-```
-
-#### AI Service (ai-service/.env)
-```env
-GEMINI_API_KEY=your_gemini_api_key
-PORT=8000
-```
-
-#### Realtime Service (realtime-service/.env)
-```env
-PORT=4000
-```
-
-## 📚 Documentation
-
-- [Quick Start Guide](./QUICK_START.md) - Get started quickly
-- [Supabase Setup](./SUPABASE_SETUP.md) - Database configuration
-- [Gemini Setup](./SETUP_GEMINI.md) - AI service configuration
-- [Troubleshooting](./TROUBLESHOOTING_PDF_QUIZ.md) - Common issues
-
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion
-- **Backend**: FastAPI (Python), Express.js (Node.js)
-- **Real-time**: Socket.io
-- **AI**: Google Gemini API
-- **Database**: Supabase (PostgreSQL)
-- **Deployment**: Render
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript 5.7** - Type safety
+- **Tailwind CSS 4** - Utility-first CSS
+- **Framer Motion 11** - Animations
+- **Socket.io Client 4.8** - Real-time communication
+- **Lucide React** - Beautiful icons
+- **Zustand 5** - State management
+
+### Backend
+- **FastAPI 0.115** - Modern Python web framework
+- **Uvicorn** - ASGI server
+- **Pydantic 2** - Data validation
+
+### Real-time Service
+- **Node.js 18+** - JavaScript runtime
+- **Express 4** - Web framework
+- **Socket.io 4.8** - WebSocket library
+- **Helmet 8** - Security middleware
+
+### Database & Infrastructure
+- **Supabase** - PostgreSQL database & auth
+- **Render** - Cloud deployment platform
 
 ## 📦 Project Structure
 
 ```
-quiz-app/
-├── src/                    # Frontend source code
-├── ai-service/            # Python AI service
-├── realtime-service/      # Node.js WebSocket service
-├── public/                # Static assets
-├── .agent/workflows/      # Development workflows
-└── render.yaml           # Render deployment config
+technexus-arena/
+├── src/                      # Frontend source code
+│   ├── app/                  # Next.js app router pages
+│   │   ├── admin/           # Admin dashboard (Manual Creator)
+│   │   ├── game/            # Game/host view
+│   │   ├── join/            # Participant join page
+│   │   └── login/           # Admin login
+│   ├── components/          # React components
+│   └── lib/                 # Utilities & config
+├── ai-service/              # Python service
+│   ├── main.py             # FastAPI app
+│   └── requirements.txt
+├── realtime-service/        # Node.js WebSocket service
+│   ├── server.js           # Socket.io server
+│   └── package.json
+└── package.json            # Frontend dependencies
 ```
 
-## 🤝 Contributing
+## 🎯 Usage
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### For Administrators
 
-## 📄 License
+1. Navigate to the homepage
+2. Click **"Admin Portal"** or **"Create Quiz"**
+3. Login with your credentials
+4. Click **"Create New Quiz"**
+5. Enter your questions manually in the editor
+6. Start the quiz and share the QR code
+7. Monitor participants and control quiz flow
 
-This project is licensed under the MIT License.
+### For Participants
 
-## 🆘 Support
+1. Scan the QR code or enter the quiz code
+2. Enter your name and get a fun avatar
+3. Wait for the quiz to start
+4. Answer questions as fast as you can
+5. Check your ranking on the leaderboard!
 
-- Check [TROUBLESHOOTING_PDF_QUIZ.md](./TROUBLESHOOTING_PDF_QUIZ.md) for common issues
-- Review [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for deployment help
-- See conversation history for development context
+## 🌟 What's New in v2.5.0
 
-## 🎯 What's Next?
+### 🚀 Rebranding & Focus
+- **TechNexus Arena**: Transitioned to a more competitive and community-focused brand.
+- **Manual First**: Switched from AI-powered generation to a robust manual editor for higher quality control.
+- **Improved UX**: New dashboard flow starting with recent sessions and a clean creation path.
 
-- [ ] Deploy to Render
-- [ ] Add custom domain
-- [ ] Enable auto-deploy from GitHub
-- [ ] Add more AI models support
-- [ ] Implement quiz templates
-- [ ] Add analytics dashboard
+### 🛠️ Refinements
+- Removed all PDF upload and AI processing overhead.
+- Updated community chatbot with smart responses for manual quiz creation.
+- Enhanced real-time performance by simplifying service architecture.
+- Added session history management in the admin dashboard.
 
 ---
 
-Built with ❤️ using Next.js, FastAPI, and Google Gemini
+**Built with ❤️ by TechNexus Community**
+
+*Experience the future of community engagement at TechNexus Arena.* 🎮

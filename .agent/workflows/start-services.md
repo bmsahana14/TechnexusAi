@@ -1,26 +1,51 @@
 ---
-description: Start all services for the TechNexus AI Quiz Arena
+description: Start all services for the TechNexus AI Quiz Arena v2.0
 ---
 
-This workflow starts the AI Service (Python), the Realtime Relay (Node.js), and the Frontend Hub (Next.js).
+This workflow starts all three microservices for the TechNexus AI Quiz Platform v2.0.0:
+- AI Service (Python/FastAPI) on port 8000
+- Realtime Service (Node.js/Socket.io) on port 4000  
+- Frontend (Next.js) on port 3000
 
-1. Install dependencies for all services
+## Prerequisites
+
+Ensure you have:
+- Node.js 18+ and npm 9+
+- Python 3.11+
+- Environment files configured (`.env.local`, `ai-service/.env`, `realtime-service/.env`)
+
+## Steps
+
 // turbo
-2. Start AI Intel Service (Port 8000)
+1. Start AI Service (Port 8000)
 ```powershell
-cd ai-service; pip install -r requirements.txt; python -m uvicorn main:app --host 0.0.0.0 --port 8000
+cd ai-service; pip install -r requirements.txt; python main.py
 ```
 
 // turbo
-3. Start Realtime Relay Service (Port 4000)
+2. Start Realtime Service (Port 4000)
 ```powershell
-cd realtime-service; npm install; npm run dev
+cd realtime-service; npm install; npm start
 ```
 
 // turbo
-4. Start Frontend Hub (Port 3000)
+3. Start Frontend (Port 3000)
 ```powershell
-cd client; npm install; npm run dev
+npm install; npm run dev
 ```
 
-> Note: Ensure you have `.env` files configured in each directory as per the `README.md`.
+## Verify Services
+
+After starting all services, verify they're running:
+- AI Service: http://localhost:8000 (should show service info)
+- Realtime Service: http://localhost:4000 (should show status)
+- Frontend: http://localhost:3000 (should show landing page)
+
+## Troubleshooting
+
+- If ports are in use, check for existing processes
+- Ensure all `.env` files are configured correctly
+- Check logs for any error messages
+- Verify Gemini API key is set in `ai-service/.env`
+- Verify Supabase credentials are set in `.env.local`
+

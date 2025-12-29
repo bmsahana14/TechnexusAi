@@ -1,166 +1,252 @@
-# 📝 CHANGELOG
+# Changelog
 
-All notable changes to TechNexus AI Quiz Arena will be documented in this file.
+All notable changes to the TechNexus AI Quiz Platform will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
----
+## [2.1.0] - 2025-12-28
 
-## [1.1.0] - 2025-12-25
+### 🎯 Focus on Simplicity and Community
 
-### ✨ Added
+### Added
 
 #### Frontend
-- **Framer Motion animations** throughout the application
-  - Staggered entrance effects on homepage
-  - Smooth page transitions
-  - Micro-interactions on buttons and cards
-- **Animated gradient backgrounds** with floating orbs
-- **Stats section** on homepage showcasing platform metrics
-- **Enhanced glassmorphism effects** with improved depth
-- **Custom scrollbar styling** with gradient colors
-- **Shimmer animation** for gradient text
-- **Glow animation** for pulsing effects
-- **Premium selection styling** with brand colors
-- **Backdrop blur utility** for advanced effects
-
-#### AI Service
-- **Enhanced prompt engineering** with structured sections
-- **Difficulty-specific guidelines** for question generation
-- **Quality requirements** in AI prompts
-- **Better error handling** for JSON parsing
-- **Max tokens parameter** for consistent output
+- Added TechNexusChatbot component - Interactive community assistant
+- Added chatbot to root layout (appears on all pages)
+- Added smart response system with keyword matching
+- Added quick question buttons for common queries
+- Added LinkedIn integration for TechNexus Community
+- Added floating chat button with gradient design
+- Added minimize/maximize functionality
+- Added typing indicators and message timestamps
+- Added smooth animations with Framer Motion
 
 #### Documentation
-- **UPDATE_SUMMARY.md** with comprehensive v1.1 details
-- **CHANGELOG.md** for version tracking
-- **Enhanced README.md** with emojis and better structure
-- **Prerequisites section** in documentation
-- **Recent updates section** in README
+- Added V2.1_UPDATE_SUMMARY.md with detailed changes
+- Updated README with chatbot feature
+- Updated metadata to reflect TechNexus Community
 
-### 🎨 Changed
-
-#### UI/UX
-- **Homepage hero section** - Increased title size to 9xl
-- **Feature cards** - Added gradient overlays on hover
-- **Admin dashboard header** - Increased title to 4xl
-- **User avatar** - Increased size from 8x8 to 10x10
-- **Join quiz icon** - Enhanced with gradient background and glow
-- **Join quiz title** - Upgraded to 5xl with gradient text
-- **Back buttons** - Added glassmorphic containers
-- **Button hover states** - Enhanced with better transitions
-
-#### Styling
-- **Glassmorphism depth** - Increased blur from 16px to 20px
-- **Card hover effects** - Increased lift from 4px to 6px
-- **Scrollbar width** - Increased from 6px to 8px
-- **Font rendering** - Added antialiasing for smoother text
-- **Button gradients** - Changed from solid to gradient backgrounds
-- **Border hover colors** - Enhanced with indigo accents
+### Removed
 
 #### AI Service
-- **Prompt structure** - Reorganized with clear sections
-- **System message** - More explicit about JSON-only output
-- **Error messages** - More descriptive and helpful
-- **Content truncation** - Optimized for token limits
+- Removed PDF quiz generation functionality
+- Removed `/generate-quiz` endpoint
+- Removed `/validate-quiz` endpoint
+- Removed PDF upload and processing logic
+- Removed dependencies: PyPDF2, pypdf, python-multipart, aiofiles
+- Removed Gemini API integration for quiz generation
+- Removed file upload validation
 
-### 🐛 Fixed
-- **JSON parsing errors** - Better markdown cleanup
-- **Animation performance** - Hardware acceleration enabled
-- **Layout shifts** - Proper sizing on all elements
-- **Mobile responsiveness** - Improved across all pages
-- **Hover state consistency** - Unified across components
+### Changed
 
-### 🚀 Performance
-- **60fps animations** - Optimized with transform/opacity
-- **Reduced re-renders** - Better React patterns
-- **Faster page loads** - Optimized component structure
-- **Smoother transitions** - Better easing functions
-- **Better loading states** - Enhanced visual feedback
+#### AI Service
+- Simplified main.py to basic status endpoints only
+- Updated version from 2.0.0 to 2.1.0
+- Changed service description to "Manual quiz creation only"
+- Updated status endpoint to reflect manual-only mode
+- Removed AI provider references
 
----
+#### Frontend
+- Updated README version to 2.1.0
+- Changed feature description from AI-powered to manual creation
+- Updated metadata author to "TechNexus Community"
+- Enhanced description with community focus
 
-## [1.0.0] - 2025-12-23
+### Why These Changes?
 
-### ✨ Initial Release
+**PDF Generation Removed:**
+- Complex and unreliable
+- Sometimes failed to generate quizzes
+- Difficult to maintain
+- Admins prefer full control over questions
 
-#### Core Features
-- **AI-powered quiz generation** from PPTX/PDF files
-- **Real-time multiplayer** quiz system with Socket.IO
-- **Admin dashboard** for quiz management
-- **Player interface** with live leaderboards
-- **Dynamic scoring** with time bonuses
-- **Supabase integration** for auth and persistence
-
-#### Architecture
-- **Next.js 15** frontend with Tailwind CSS v4
-- **FastAPI** AI service with OpenAI GPT-4o-mini
-- **Node.js** realtime service with Socket.IO
-- **PostgreSQL** database via Supabase
-
-#### UI/UX
-- **Dark theme** with glassmorphism design
-- **Responsive layouts** for all devices
-- **Lucide icons** throughout
-- **Basic animations** with Framer Motion
+**Chatbot Added:**
+- Provides instant help on every page
+- Connects users to TechNexus Community
+- Answers common questions automatically
+- Enhances user engagement
+- Available 24/7
 
 ---
 
-## [Unreleased]
+## [2.0.0] - 2025-12-28
 
-### 🔮 Planned Features
-- Analytics dashboard for quiz insights
-- Question bank for reusing generated questions
-- Multi-language support
-- Mobile native applications
-- Advanced AI features (difficulty adjustment, personalization)
-- Social features (teams, global leaderboards, achievements)
-- LMS integrations (Moodle, Canvas)
-- Video conferencing integrations (Zoom, Teams)
-- Calendar sync
-- Certificate generation
-- Advanced reporting
-- White-label options
+### 🎉 Major Release - Complete Platform Upgrade
+
+### Added
+
+#### Frontend
+- Added Zustand 5.0.2 for state management
+- Added `lint:fix` script for automatic linting fixes
+- Added `type-check` script for TypeScript validation
+- Added `clean` script for build cleanup
+- Added engine requirements (Node ≥18.0.0, npm ≥9.0.0)
+- Added comprehensive package metadata (description, author)
+
+#### AI Service
+- Restored full PDF quiz generation functionality
+- Added `/health` endpoint for health checks
+- Added `/generate-quiz` endpoint with full features
+- Added `/validate-quiz` endpoint for quiz validation
+- Added comprehensive logging with timestamps
+- Added input validation for all parameters
+- Added automatic file cleanup after processing
+- Added metadata tracking for generated quizzes
+- Added PyPDF2 3.0.1 for PDF processing
+- Added pypdf 5.1.0 as alternative PDF parser
+- Added aiofiles 24.1.0 for async file operations
+- Added httpx 0.28.1 for modern HTTP client
+- Added pydantic-settings 2.7.1 for configuration
+
+#### Realtime Service
+- Added Helmet 8.0.0 for security headers
+- Added `/stats` endpoint for monitoring
+- Added connection rate limiting (50 per IP)
+- Added structured logging with timestamps
+- Added connection tracking and cleanup
+- Added enhanced WebSocket configuration
+- Added ping/pong settings for better reliability
+
+#### Documentation
+- Added V2_UPDATE_SUMMARY.md with comprehensive update details
+- Added version badges to README
+- Added visual architecture diagram
+- Added usage guides for admins and participants
+- Added development commands section
+- Added contributing guidelines
+- Added detailed roadmap
+- Added "What's New in v2.0" section
+- Enhanced environment variable documentation
+
+### Changed
+
+#### Frontend
+- Updated Next.js from 16.1.1 to 15.1.3 (stable LTS)
+- Updated React from 19.2.3 to 19.0.0 (stable)
+- Updated React DOM from 19.2.3 to 19.0.0
+- Updated Framer Motion from 12.23.26 to 11.11.17
+- Updated Supabase Client from 2.89.0 to 2.45.4
+- Updated Socket.io Client from 4.8.2 to 4.8.1
+- Updated Lucide React from 0.562.0 to 0.462.0
+- Updated TypeScript to 5.7.2
+- Updated ESLint to 9.17.0
+- Updated Tailwind CSS to 4.0.0
+- Updated all type definitions to latest versions
+- Renamed package from "client" to "technexus-ai-quiz-platform"
+- Updated version from 0.1.0 to 2.0.0
+
+#### AI Service
+- Updated FastAPI to 0.115.6
+- Updated Uvicorn to 0.34.0
+- Updated Pydantic to 2.10.5
+- Updated Google Generative AI to 0.8.3
+- Updated OpenAI to 1.59.5
+- Updated Python-dotenv to 1.0.1
+- Pinned all dependencies to specific versions
+- Enhanced main.py with full quiz generation
+- Improved error handling and logging
+- Better CORS configuration
+
+#### Realtime Service
+- Updated Express from 4.18.2 to 4.21.2
+- Updated Socket.io from 4.7.2 to 4.8.1
+- Updated dotenv from 16.3.1 to 16.4.7
+- Updated nodemon from 3.0.2 to 3.1.9
+- Enhanced server.js with security features
+- Improved connection handling
+- Better logging with structured format
+- Updated version from 1.0.0 to 2.0.0
+
+#### Documentation
+- Completely rewrote README.md with v2.0 information
+- Updated .env.local.example with production examples
+- Updated ai-service/.env.example with detailed comments
+- Updated realtime-service/.env.example with complete guide
+- Updated start-services workflow for v2.0.0
+
+### Security
+
+- Added Helmet.js security middleware
+- Implemented connection rate limiting
+- Enhanced input validation
+- Improved CORS configuration
+- Added error sanitization
+- Implemented IP-based connection tracking
+
+### Performance
+
+- Optimized WebSocket configuration
+- Improved connection management
+- Added async file operations
+- Better resource cleanup
+- Enhanced logging efficiency
+
+### Fixed
+
+- **Fix**: Resolved an issue where clicking "Launch Arena" in the Admin Dashboard did not redirect to the host view.
+- **Fix**: Resolved "Loading your arena..." infinite loading state in Admin Dashboard.
+- **Fix**: Fixed issue where deleted quizzes could not be permanently removed.
+- Fixed AI service to support full quiz generation
+- Fixed connection cleanup on disconnect
+- Fixed logging format consistency
+- Fixed environment variable handling
+- Fixed CORS origin configuration
+
+---
+
+## [1.0.0] - 2025-12-25
+
+### Initial Release
+
+- Basic quiz platform with AI generation
+- Real-time multiplayer support
+- Admin dashboard
+- Participant join flow
+- QR code joining
+- Leaderboard system
+- Google Gemini integration
+- Supabase database
+- Socket.io real-time features
 
 ---
 
 ## Version History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.1.0 | 2025-12-25 | Major UI/UX enhancements, AI improvements |
-| 1.0.0 | 2025-12-23 | Initial release with core features |
+- **2.0.0** (2025-12-28) - Major upgrade with enhanced features and security
+- **1.0.0** (2025-12-25) - Initial release
 
 ---
 
-## Migration Guide
+## Upgrade Guide
 
-### From 1.0.0 to 1.1.0
+### From 1.x to 2.0
 
-**No migration required** - All changes are backward compatible.
+1. **Update Dependencies**
+   ```bash
+   npm install
+   cd ai-service && pip install -r requirements.txt
+   cd ../realtime-service && npm install
+   ```
 
-#### What's Changed
-- Enhanced UI/UX (automatic)
-- Improved AI prompts (automatic)
-- Better documentation (informational)
+2. **Update Environment Variables**
+   - Review new `.env.example` files
+   - No breaking changes to existing variables
 
-#### Action Required
-- None - Just pull the latest changes and restart services
-
-#### Breaking Changes
-- None
-
----
-
-## Support
-
-For issues, questions, or contributions:
-- Create an issue on GitHub
-- Contact the TechNexus team
-- Check the documentation in `README.md` and `PRD.md`
+3. **Restart Services**
+   - All changes are backward compatible
+   - No database migrations required
 
 ---
 
-**Maintained by**: TechNexus Development Team  
-**License**: MIT
+## Links
+
+- [GitHub Repository](https://github.com/yourusername/technexus-ai-quiz)
+- [Documentation](./README.md)
+- [Update Summary](./V2_UPDATE_SUMMARY.md)
+- [Deployment Guide](./DEPLOY_TO_RENDER.md)
+
+---
+
+**Maintained by:** TechNexus Team  
+**License:** MIT

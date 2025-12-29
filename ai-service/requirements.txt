@@ -1,8 +1,21 @@
-fastapi
-uvicorn
-python-multipart
-python-pptx
-pypdf
-openai
-python-dotenv
-google-generativeai
+# Core Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.5
+pydantic-settings==2.7.1
+
+# File Processing
+python-multipart==0.0.20
+PyPDF2==3.0.1
+pypdf==5.1.0
+
+# AI Integration
+google-generativeai==0.8.3
+openai==1.59.5
+
+# Utilities
+python-dotenv==1.0.1
+aiofiles==24.1.0
+
+# HTTP & CORS
+httpx==0.28.1

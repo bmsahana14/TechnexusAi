@@ -64,3 +64,7 @@ uploads/
 # logs
 *.log
 ai_init_log.txt
+
+# documentation
+*.md
+!README.md

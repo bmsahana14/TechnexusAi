@@ -37,6 +37,19 @@ ON public.quizzes FOR SELECT
 TO public 
 USING (true);
 
+-- Allow admins to delete their own quizzes
+CREATE POLICY "Admins can delete their own quizzes" 
+ON public.quizzes FOR DELETE 
+TO authenticated 
+USING (auth.uid() = creator_id);
+
+-- Allow admins to update their own quizzes
+CREATE POLICY "Admins can update their own quizzes" 
+ON public.quizzes FOR UPDATE 
+TO authenticated 
+USING (auth.uid() = creator_id)
+WITH CHECK (auth.uid() = creator_id);
+
 -- 4. Indices for performance
 CREATE INDEX IF NOT EXISTS quizzes_creator_id_idx ON public.quizzes(creator_id);
 CREATE INDEX IF NOT EXISTS quizzes_room_id_idx ON public.quizzes(room_id);

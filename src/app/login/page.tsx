@@ -114,6 +114,23 @@ export default function LoginPage() {
                                 </>
                             )}
                         </button>
+
+                        <div className="relative my-8">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-slate-700/50"></span>
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-[#0f172a] px-2 text-slate-500 font-bold">Or development use</span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => router.push("/admin")}
+                            className="w-full py-4 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 font-bold rounded-xl border border-slate-700/50 transition-all flex items-center justify-center gap-2 group"
+                        >
+                            <span className="group-hover:translate-x-1 transition-transform">Demo Admin Access (No Login)</span>
+                        </button>
                     </form>
 
                     <div className="mt-8 pt-8 border-t border-slate-700/50 text-center">

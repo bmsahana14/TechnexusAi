@@ -96,9 +96,9 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            Transform presentations into <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive quizzes</span> instantly.
+            Revolutionize your learning with <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold">interactive quizzes</span>.
             <br />
-            <span className="text-base sm:text-lg text-slate-400 mt-4 block">Where AI meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
+            <span className="text-base sm:text-lg text-slate-400 mt-4 block">Where knowledge meets real-time engagement. Compete, learn, and dominate the leaderboard.</span>
           </motion.p>
         </motion.div>
 
@@ -126,7 +126,7 @@ export default function Home() {
             className="group px-12 py-6 glass text-white rounded-2xl font-bold text-xl hover:bg-white/10 transition-all border border-white/10 hover:border-indigo-400/50 hover:scale-105 active:scale-95 flex items-center gap-3"
           >
             <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
-            Create with AI
+            Admin Dashboard
           </Link>
         </motion.div>
 
@@ -142,8 +142,8 @@ export default function Home() {
               icon: <Sparkles size={28} />,
               color: "indigo",
               styles: "bg-indigo-500/20 text-indigo-400 border-indigo-500/20",
-              title: "Instant Generation",
-              description: "Upload PPT or PDF files and watch AI generate high-quality questions in under 30 seconds.",
+              title: "Easy Creation",
+              description: "Create custom quizzes in seconds with our intuitive admin dashboard and real-time management tools.",
               gradient: "from-indigo-500/20 to-indigo-500/5"
             },
             {
@@ -196,7 +196,7 @@ export default function Home() {
           transition={{ delay: 1.2 }}
         >
           {[
-            { value: "<30s", label: "Quiz Generation" },
+            { value: "Instant", label: "Quiz Creation" },
             { value: "1000+", label: "Concurrent Users" },
             { value: "99.9%", label: "Uptime" }
           ].map((stat, index) => (

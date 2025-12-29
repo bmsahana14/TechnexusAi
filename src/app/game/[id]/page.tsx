@@ -19,6 +19,11 @@ export default function PlayerGameView() {
     const [timeLeft, setTimeLeft] = useState(30);
     const [duration, setDuration] = useState(30);
     const [resultData, setResultData] = useState<any>(null); // To store answer reveal data
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         if (status === 'ACTIVE' && !hasAnswered && timeLeft > 0 && !resultData) {
@@ -119,7 +124,7 @@ export default function PlayerGameView() {
                     className="glass-card p-6 sm:p-12 text-center max-w-md w-full border-indigo-500/10 shadow-2xl"
                 >
                     <div className="h-16 w-16 sm:h-24 sm:w-24 bg-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-center overflow-hidden mx-auto mb-6 sm:mb-8 border-2 border-indigo-500/30 shadow-2xl shadow-indigo-500/20">
-                        {typeof window !== 'undefined' && localStorage.getItem(`quiz_avatar_${quizId}`) ? (
+                        {mounted && localStorage.getItem(`quiz_avatar_${quizId}`) ? (
                             <img
                                 src={localStorage.getItem(`quiz_avatar_${quizId}`) || ""}
                                 alt="Your Avatar"

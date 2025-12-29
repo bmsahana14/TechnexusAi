@@ -57,48 +57,81 @@ export default function JoinQuiz() {
 
     const handleJoin = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!pin || !name) {
+            alert("Please enter both PIN and name");
+            return;
+        }
+
         setLoading(true);
 
+        // Ensure socket is connected
         if (!socket.connected) {
             socket.connect();
         }
 
-        // Emit join event with avatar
-        socket.emit('join-quiz', {
-            quizId: pin,
-            playerName: name,
-            avatar: avatarUrl
-        });
+        // Wait a moment for connection to establish
+        const attemptJoin = () => {
+            // Emit join event with avatar
+            socket.emit('join-quiz', {
+                quizId: pin,
+                playerName: name,
+                avatar: avatarUrl
+            });
 
-        const handleJoined = (data: any) => {
-            if (data.id === socket.id) {
-                console.log("Successfully joined!");
-                localStorage.setItem(`quiz_name_${pin}`, name);
-                localStorage.setItem(`quiz_avatar_${pin}`, avatarUrl);
-                socket.off('player-joined', handleJoined);
-                socket.off('error', handleError);
-                setLoading(false);
-                router.push(`/game/${pin}`);
-            }
-        };
+            const handleJoined = (data: any) => {
+                if (data.id === socket.id) {
+                    console.log("Successfully joined!");
+                    localStorage.setItem(`quiz_name_${pin}`, name);
+                    localStorage.setItem(`quiz_avatar_${pin}`, avatarUrl);
+                    socket.off('player-joined', handleJoined);
+                    socket.off('error', handleError);
+                    setLoading(false);
+                    // Use window.location for more reliable navigation
+                    window.location.href = `/game/${pin}`;
+                }
+            };
 
-        const handleError = (data: any) => {
-            alert(data.message);
-            setLoading(false);
-            socket.off('player-joined', handleJoined);
-            socket.off('error', handleError);
-        };
-
-        socket.on('player-joined', handleJoined);
-        socket.on('error', handleError);
-
-        setTimeout(() => {
-            if (loading) {
+            const handleError = (data: any) => {
+                alert(data.message || "Failed to join quiz. Please check the PIN and try again.");
                 setLoading(false);
                 socket.off('player-joined', handleJoined);
                 socket.off('error', handleError);
-            }
-        }, 5000);
+            };
+
+            socket.on('player-joined', handleJoined);
+            socket.on('error', handleError);
+
+            // Timeout after 8 seconds
+            setTimeout(() => {
+                if (loading) {
+                    alert("Connection timeout. Please check your internet and try again.");
+                    setLoading(false);
+                    socket.off('player-joined', handleJoined);
+                    socket.off('error', handleError);
+                }
+            }, 8000);
+        };
+
+        // If already connected, join immediately; otherwise wait for connection
+        if (socket.connected) {
+            attemptJoin();
+        } else {
+            const onConnect = () => {
+                socket.off('connect', onConnect);
+                attemptJoin();
+            };
+            socket.on('connect', onConnect);
+
+            // Timeout for connection
+            setTimeout(() => {
+                if (!socket.connected) {
+                    socket.off('connect', onConnect);
+                    alert("Cannot connect to server. Please check your internet connection.");
+                    setLoading(false);
+                }
+            }, 5000);
+        }
     };
 
     const handleScan = (decodedText: string) => {
@@ -146,9 +179,9 @@ export default function JoinQuiz() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="w-full max-w-md relative z-10"
+                className="w-full max-w-md relative z-10 px-4"
             >
-                <div className="glass-card p-10 md:p-12 border-indigo-500/10">
+                <div className="glass-card p-6 sm:p-8 md:p-12 border-indigo-500/10">
                     <div className="text-center mb-10">
                         {/* Avatar Selector */}
                         <div className="relative inline-block mb-6 group">

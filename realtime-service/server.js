@@ -2,32 +2,101 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
+}));
+
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : "*";
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
+}));
+
+app.use(express.json());
 
 // In-memory store for active quizzes (Replace with Redis for scaling)
 const activeQuizzes = new Map();
+
+// Connection tracking
+const connections = new Map();
+const MAX_CONNECTIONS_PER_IP = 50;
+
+// Logging utility
+const log = {
+    info: (msg) => console.log(`[INFO] ${new Date().toISOString()} - ${msg}`),
+    warn: (msg) => console.warn(`[WARN] ${new Date().toISOString()} - ${msg}`),
+    error: (msg) => console.error(`[ERROR] ${new Date().toISOString()} - ${msg}`)
+};
 
 // Health check endpoint for Render
 app.get('/', (req, res) => {
     res.json({
         status: 'ok',
-        message: 'TechNexus Realtime Service is running'
+        service: 'TechNexus Realtime Service',
+        version: '2.0.0',
+        activeQuizzes: activeQuizzes.size,
+        timestamp: new Date().toISOString()
     });
+});
+
+// Stats endpoint
+app.get('/stats', (req, res) => {
+    const stats = {
+        activeQuizzes: activeQuizzes.size,
+        totalParticipants: 0,
+        quizzes: []
+    };
+
+    activeQuizzes.forEach((quiz, quizId) => {
+        stats.totalParticipants += quiz.participants.size;
+        stats.quizzes.push({
+            id: quizId,
+            title: quiz.title,
+            state: quiz.state,
+            participants: quiz.participants.size,
+            currentQuestion: quiz.currentQuestion,
+            totalQuestions: quiz.questions.length
+        });
+    });
+
+    res.json(stats);
 });
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    maxHttpBufferSize: 1e6, // 1MB
+    transports: ['websocket', 'polling']
 });
 
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    const clientIp = socket.handshake.address;
+    log.info(`User connected: ${socket.id} from ${clientIp}`);
+
+    // Track connections per IP
+    const ipConnections = connections.get(clientIp) || 0;
+    if (ipConnections >= MAX_CONNECTIONS_PER_IP) {
+        log.warn(`Connection limit exceeded for IP: ${clientIp}`);
+        socket.emit('error', { message: 'Connection limit exceeded' });
+        socket.disconnect();
+        return;
+    }
+    connections.set(clientIp, ipConnections + 1);
 
     // --- Participant Events ---
 
@@ -39,14 +108,37 @@ io.on('connection', (socket) => {
 
         const quiz = activeQuizzes.get(quizId);
 
-        // Add player
-        quiz.participants.set(socket.id, {
-            name: playerName,
-            avatar: avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${playerName}`,
-            score: 0,
-            id: socket.id,
-            answers: []
-        });
+        // Reconnect/Session Merging Logic
+        // In a real app, use a unique token/ID, but for this arena name is the key
+        let existingParticipantId = null;
+        for (const [id, p] of quiz.participants.entries()) {
+            if (p.name === playerName) {
+                existingParticipantId = id;
+                break;
+            }
+        }
+
+        if (existingParticipantId) {
+            log.info(`Player ${playerName} reconnecting. Merging from ${existingParticipantId} to ${socket.id}`);
+            const existingData = quiz.participants.get(existingParticipantId);
+
+            // Transfer state to new socket ID
+            quiz.participants.delete(existingParticipantId);
+            quiz.participants.set(socket.id, {
+                ...existingData,
+                id: socket.id,
+                avatar: avatar || existingData.avatar // allow avatar update
+            });
+        } else {
+            // New participant
+            quiz.participants.set(socket.id, {
+                name: playerName,
+                avatar: avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${playerName}`,
+                score: 0,
+                id: socket.id,
+                answers: []
+            });
+        }
 
         socket.join(quizId);
 
@@ -74,13 +166,31 @@ io.on('connection', (socket) => {
     socket.on('get-room-state', ({ quizId }) => {
         const quiz = activeQuizzes.get(quizId);
         if (quiz) {
-            const playerList = Array.from(quiz.participants.values()).map(p => ({ id: p.id, name: p.name, avatar: p.avatar }));
+            const playerList = Array.from(quiz.participants.values()).map(p => ({
+                id: p.id,
+                name: p.name,
+                avatar: p.avatar,
+                score: p.score
+            }));
+
+            // Calculate leaderboard if needed (useful for refreshing on ENDED screen)
+            let leaderboard = [];
+            if (quiz.state === 'ENDED') {
+                leaderboard = Array.from(quiz.participants.values())
+                    .sort((a, b) => b.score - a.score)
+                    .map((p, i) => {
+                        const { answers, ...playerData } = p;
+                        return { ...playerData, rank: i + 1 };
+                    });
+            }
+
             socket.emit('room-state', {
                 state: quiz.state,
                 currentQuestion: quiz.currentQuestion,
                 title: quiz.title,
                 participants: playerList,
-                questions: quiz.questions.length
+                questions: quiz.questions.length,
+                leaderboard: leaderboard
             });
         }
     });
@@ -233,6 +343,18 @@ io.on('connection', (socket) => {
 
     // --- Disconnect ---
     socket.on('disconnect', () => {
+        const clientIp = socket.handshake.address;
+
+        // Clean up connection tracking
+        const ipConnections = connections.get(clientIp) || 0;
+        if (ipConnections > 0) {
+            connections.set(clientIp, ipConnections - 1);
+            if (ipConnections - 1 === 0) {
+                connections.delete(clientIp);
+            }
+        }
+
+        // Remove from active quizzes
         activeQuizzes.forEach((quiz, quizId) => {
             if (quiz.participants.has(socket.id)) {
                 const player = quiz.participants.get(socket.id);
@@ -246,13 +368,20 @@ io.on('connection', (socket) => {
                     count: quiz.participants.size,
                     players: playerList
                 });
+
+                log.info(`${player.name} left quiz ${quizId}`);
             }
         });
-        console.log('User disconnected:', socket.id);
+
+        log.info(`User disconnected: ${socket.id}`);
     });
 });
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
-    console.log(`Realtime service running on port ${PORT}`);
+    log.info(`===========================================`);
+    log.info(`TechNexus Realtime Service v2.5.0`);
+    log.info(`Server running on port ${PORT}`);
+    log.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    log.info(`===========================================`);
 });
