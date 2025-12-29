@@ -1,4 +1,4 @@
-# 🎮 TechNexus Arena v2.5.0
+# 🎮 TechNexus Arena 
 
 An interactive, real-time quiz platform powered by TechNexus Community. Create engaging quizzes manually, manage live arenas, and compete with friends in real-time!
 
